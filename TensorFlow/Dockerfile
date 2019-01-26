@@ -1,3 +1,4 @@
+# syntax = docker/dockerfile:1.0-experimental
 FROM tensorflow/tensorflow:1.12.0-py3
 
 RUN ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
