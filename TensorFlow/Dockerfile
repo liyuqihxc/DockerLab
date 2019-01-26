@@ -74,16 +74,6 @@ RUN --mount=type=secret,id=sspassword \
     && apt-get install -y $RUNTIME_DEPS \
     && apt-get install -y $BUILD_DEPS \
     && echo \
-    "{" \
-    "\"server\": \"$SS_SERVER\"," \
-    "\"server_port\": $SS_SERVER_PORT," \
-    "\"local_port\": 18650," \
-    "\"password\": \"$SS_PASSWORD\"," \
-    "\"timeout\": 60," \
-    "\"method\": \"$SS_METHOD\"" \
-    "}" \
-    | jq . > /etc/shadowsocks-libev/config.json \
-    && echo \
     "logSyslog = true\n" \
     "logFile = /var/log/polipo/polipo.log\n" \
     "proxyAddress = \"0.0.0.0\"\n" \
@@ -319,4 +309,13 @@ RUN \
 # RUN pip3 install -r /requirements.txt
 
 
-CMD ["/bin/bash"]
+CMD echo \
+    "{\n" \
+    "\"server\": \"$SS_SERVER\",\n" \
+    "\"server_port\": $SS_SERVER_PORT,\n" \
+    "\"local_port\": 18650,\n" \
+    "\"password\": \"$SS_PASSWORD\",\n" \
+    "\"timeout\": 60,\n" \
+    "\"method\": \"$SS_METHOD\"\n" \
+    "}" \
+    > /etc/shadowsocks-libev/config.json && /bin/bash
