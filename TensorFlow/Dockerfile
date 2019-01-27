@@ -3,7 +3,7 @@ FROM tensorflow/tensorflow:1.12.0-py3
 
 RUN ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 
-ARG RUNTIME_DEPS='wget unzip openssl git polipo shadowsocks-libev'
+ARG RUNTIME_DEPS='wget unzip openssl git'
 ARG BUILD_DEPS='cmake yasm coreutils autoconf automake libtool diffutils texinfo jq pkg-config build-essential \
                 libssl-dev libpng-dev libjpeg-turbo8-dev libtiff-dev libopenexr-dev libjasper-dev libopenblas-dev zlib1g.dev'
 ARG LIB_PREFIX='/usr/local'
@@ -66,24 +66,11 @@ RUN \
     && echo "deb http://mirrors.163.com/ubuntu/ xenial-backports main restricted universe multiverse"     >> /etc/apt/sources.list \
     && echo "deb-src http://mirrors.163.com/ubuntu/ xenial-backports main restricted universe multiverse" >> /etc/apt/sources.list
 
-RUN --mount=type=secret,id=sspassword \
-    . /run/secrets/sspassword.config \
-    && cat /proc/cpuinfo | grep ^processor | wc -l > /build_concurrency \
-    && add-apt-repository ppa:longsleep/golang-backports \
-    && add-apt-repository ppa:max-c-lv/shadowsocks-libev \
+RUN \
+    cat /proc/cpuinfo | grep ^processor | wc -l > /build_concurrency \
     && apt-get update -y && apt-get update \
     && apt-get install -y $RUNTIME_DEPS \
     && apt-get install -y $BUILD_DEPS \
-    && echo \
-    "logSyslog = true\n" \
-    "logFile = /var/log/polipo/polipo.log\n" \
-    "proxyAddress = \"0.0.0.0\"\n" \
-    "socksParentProxy = \"127.0.0.1:18650\"\n" \
-    "socksProxyType = socks5\n" \
-    > /etc/polipo/config \
-    && rm -rf /var/log/polipo/polipo.log \
-    && /etc/init.d/polipo restart \
-    && (nohup ss-local -s ${SEC_SS_SERVER} -p ${SS_SERVER_PORT} -l 18650 -k ${SEC_SS_PASSWORD} -m ${SS_METHOD} -b 127.0.0.1 &) \
     \
     && wget -O - "https://www.nasm.us/pub/nasm/releasebuilds/2.14.02/nasm-2.14.02.tar.gz" | tar xz \
     && cd nasm-2.14.02 \
@@ -152,7 +139,7 @@ RUN --mount=type=secret,id=sspassword \
     && ./autogen.sh && ./configure --enable-static --disable-shared && make -j$(cat /build_concurrency) install \
     && cd / && rm -rf EX_VERSION \
     \
-    && git -c http.proxy="127.0.0.1:8123" clone --branch v$AOM_VERSION --depth 1 "https://aomedia.googlesource.com/aom" \
+    && git clone --branch v$AOM_VERSION --depth 1 "https://aomedia.googlesource.com/aom" \
     && cd aom \
     && mkdir build_tmp && cd build_tmp \
     && cmake -DENABLE_SHARED=OFF -DENABLE_TESTS=0 .. \
@@ -310,13 +297,4 @@ RUN \
 # RUN pip3 install -r /requirements.txt
 
 
-CMD echo \
-    "{\n" \
-    "\"server\": \"$SS_SERVER\",\n" \
-    "\"server_port\": $SS_SERVER_PORT,\n" \
-    "\"local_port\": 18650,\n" \
-    "\"password\": \"$SS_PASSWORD\",\n" \
-    "\"timeout\": 60,\n" \
-    "\"method\": \"$SS_METHOD\"\n" \
-    "}" \
-    > /etc/shadowsocks-libev/config.json && /bin/bash
+CMD ["/bin/bash"]
