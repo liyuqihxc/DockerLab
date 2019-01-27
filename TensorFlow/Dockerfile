@@ -1,4 +1,3 @@
-# syntax = docker/dockerfile:1.0-experimental
 FROM tensorflow/tensorflow:1.12.0-py3
 
 RUN ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
@@ -26,9 +25,8 @@ ARG SPEEX_VERSION=1.2.0
 ARG AOM_VERSION=1.0.0
 ARG VIDSTAB_VERSION=1.1.0
 ARG KVAZAAR_VERSION=1.2.0
+ARG HTTP_PROXY
 
-ARG SS_SERVER_PORT=18650
-ARG SS_METHOD=aes-256-gcm
 
 # -O3 makes sure we compile with optimization. setting CFLAGS/CXXFLAGS seems to override
 # default automake cflags.
@@ -42,11 +40,7 @@ ENV LDFLAGS="-Wl,-z,relro -Wl,-z,now -fPIE -pie"
 ENV LIB_PREFIX=${LIB_PREFIX}
 ENV FFMPEG_PATH='/usr/bin/ffmpeg'
 ENV FFPROBE_PATH='/usr/bin/ffprobe'
-
-ENV SS_SERVER=
-ENV SS_SERVER_PORT=${SS_SERVER_PORT}
-ENV SS_PASSWORD=
-ENV SS_METHOD=${SS_METHOD}
+ENV HTTP_PROXY=${HTTP_PROXY}
 
 
 WORKDIR /
@@ -71,6 +65,7 @@ RUN \
     && apt-get update -y && apt-get update \
     && apt-get install -y $RUNTIME_DEPS \
     && apt-get install -y $BUILD_DEPS \
+    && if [ ! -z "${HTTP_PROXY}" ] ; then git config --global http.proxy ${HTTP_PROXY} && git config --global https.proxy ${HTTP_PROXY} ; fi \
     \
     && wget -O - "https://www.nasm.us/pub/nasm/releasebuilds/2.14.02/nasm-2.14.02.tar.gz" | tar xz \
     && cd nasm-2.14.02 \
