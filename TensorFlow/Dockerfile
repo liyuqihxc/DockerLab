@@ -261,7 +261,9 @@ RUN \
     && AUTO_ADDED_PACKAGES='apt-mark showauto' \
     && apt-get remove --purge -y $BUILD_DEPS $AUTO_ADDED_PACKAGES \
     && apt-get install -y $RUNTIME_DEPS \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* \
+    && git config --unset http.proxy \
+    && git config --unset https.proxy
 
 RUN \
     echo \
