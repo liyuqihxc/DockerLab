@@ -40,7 +40,6 @@ ENV LDFLAGS="-Wl,-z,relro -Wl,-z,now -fPIE -pie"
 ENV LIB_PREFIX=${LIB_PREFIX}
 ENV FFMPEG_PATH='/usr/bin/ffmpeg'
 ENV FFPROBE_PATH='/usr/bin/ffprobe'
-ENV HTTP_PROXY=${HTTP_PROXY}
 
 
 WORKDIR /
@@ -104,7 +103,7 @@ RUN \
     \
     && wget -O - "https://github.com/webmproject/libvpx/archive/v$VPX_VERSION.tar.gz" | tar xz \
     && cd libvpx-$VPX_VERSION \
-    && ./configure --enable-static --disable-shared && make -j$(cat /build_concurrency) install \
+    && ./configure --disable-unit-tests --enable-static --disable-shared && make -j$(cat /build_concurrency) install \
     && cd / && rm -rf libvpx-$VPX_VERSION \
     \
     && git clone git://git.videolan.org/x264.git \
