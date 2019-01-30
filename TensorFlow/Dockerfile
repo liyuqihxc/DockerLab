@@ -2,8 +2,8 @@ FROM tensorflow/tensorflow:1.12.0-py3
 
 RUN ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 
-ARG RUNTIME_DEPS='wget unzip openssl git'
-ARG BUILD_DEPS='cmake yasm coreutils autoconf automake libtool diffutils texinfo jq pkg-config build-essential \
+ARG RUNTIME_DEPS='wget unzip git'
+ARG BUILD_DEPS='cmake gcc gcc-c++ yasm coreutils autoconf automake libtool diffutils texinfo jq pkg-config build-essential \
                 libssl-dev libpng-dev libjpeg-turbo8-dev libtiff-dev libopenexr-dev libjasper-dev libopenblas-dev zlib1g.dev'
 ARG LIB_PREFIX='/usr/local'
 ARG OPENCV_VERSION=4.0.1
