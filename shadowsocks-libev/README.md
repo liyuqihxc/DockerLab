@@ -4,7 +4,7 @@
 
 #### How to use
 
-```bash
+```
 docker pull liyuqihxc/shadowsocks-libev
 
 echo PASSWORD=<server-password> >> .envfile

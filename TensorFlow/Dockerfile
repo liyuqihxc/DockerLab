@@ -33,9 +33,13 @@ ARG HTTP_PROXY
 # -static-libgcc is needed to make gcc not include gcc_s as "as-needed" shared library which
 # cmake will include as a implicit library.
 # other options to get hardened build (same as ffmpeg hardened)
-ENV CFLAGS="-O3 -static-libgcc -fno-strict-overflow -fstack-protector-all -fPIE"
-ENV CXXFLAGS="-O3 -static-libgcc -fno-strict-overflow -fstack-protector-all -fPIE"
-ENV LDFLAGS="-Wl,-z,relro -Wl,-z,now -fPIE -pie"
+# ENV CFLAGS="-O3 -static-libgcc -fno-strict-overflow -fstack-protector-all -fPIE"
+# ENV CXXFLAGS="-O3 -static-libgcc -fno-strict-overflow -fstack-protector-all -fPIE"
+# ENV LDFLAGS="-Wl,-z,relro -Wl,-z,now -fPIE -pie"
+ENV CFLAGS="-O3 -fno-strict-overflow -fstack-protector-all -fPIC"
+ENV CXXFLAGS="-O3 -fno-strict-overflow -fstack-protector-all -fPIC"
+ENV LDFLAGS="-Wl,-z,relro -fPIC -pic"
+
 
 ENV LIB_PREFIX=${LIB_PREFIX}
 ENV FFMPEG_PATH='/usr/bin/ffmpeg'
@@ -73,87 +77,87 @@ RUN \
     \
     && wget -O - "https://sourceforge.net/projects/lame/files/lame/$MP3LAME_VERSION/lame-$MP3LAME_VERSION.tar.gz/download" | tar xz \
     && cd lame-$MP3LAME_VERSION \
-    && ./configure --enable-static --disable-shared && make -j$(cat /build_concurrency) install \
+    && ./configure --enable-shared --disable-static && make -j$(cat /build_concurrency) install \
     && cd / && rm -rf lame-$MP3LAME_VERSION \
     \
     && wget -O - "https://github.com/mstorsjo/fdk-aac/archive/v$FDK_AAC_VERSION.tar.gz" | tar xz \
     && cd fdk-aac-$FDK_AAC_VERSION \
-    && ./autogen.sh && ./configure --enable-static --disable-shared && make -j$(cat /build_concurrency) install \
+    && ./autogen.sh && ./configure --enable-shared --disable-static && make -j$(cat /build_concurrency) install \
     && cd / && rm -rf fdk-aac-$FDK_AAC_VERSION \
     \
     && wget -O - "http://downloads.xiph.org/releases/ogg/libogg-$OGG_VERSION.tar.gz" | tar xz \
     && cd libogg-$OGG_VERSION \
-    && ./configure --enable-static --disable-shared && make -j$(cat /build_concurrency) install \
+    && ./configure --enable-shared --disable-static && make -j$(cat /build_concurrency) install \
     && cd / && rm -rf libogg-$OGG_VERSION \
     \
     && wget -O - "https://downloads.xiph.org/releases/vorbis/libvorbis-$VORBIS_VERSION.tar.gz" | tar xz \
     && cd libvorbis-$VORBIS_VERSION \
-    && ./configure --enable-static --disable-shared && make -j$(cat /build_concurrency) install \
+    && ./configure --enable-shared --disable-static && make -j$(cat /build_concurrency) install \
     && cd / && rm -rf libvorbis-$VORBIS_VERSION \
     \
     && wget -O - "https://archive.mozilla.org/pub/opus/opus-$OPUS_VERSION.tar.gz" | tar xz \
     && cd opus-$OPUS_VERSION \
-    && ./configure --enable-static --disable-shared && make -j$(cat /build_concurrency) install \
+    && ./configure --enable-shared --disable-static && make -j$(cat /build_concurrency) install \
     && cd / && rm -rf opus-$OPUS_VERSION \
     \
     && wget -O - "https://downloads.xiph.org/releases/theora/libtheora-$THEORA_VERSION.tar.bz2" | tar xj \
     && cd libtheora-$THEORA_VERSION \
-    && ./configure --enable-static --disable-shared && make -j$(cat /build_concurrency) install \
+    && ./configure --enable-shared --disable-static && make -j$(cat /build_concurrency) install \
     && cd / && rm -rf libtheora-$THEORA_VERSION \
     \
     && wget -O - "https://github.com/webmproject/libvpx/archive/v$VPX_VERSION.tar.gz" | tar xz \
     && cd libvpx-$VPX_VERSION \
-    && ./configure --disable-unit-tests --enable-static --disable-shared && make -j$(cat /build_concurrency) install \
+    && ./configure --disable-unit-tests --enable-shared --disable-static && make -j$(cat /build_concurrency) install \
     && cd / && rm -rf libvpx-$VPX_VERSION \
     \
     && git clone git://git.videolan.org/x264.git \
     && cd x264 \
     && git checkout $X264_VERSION \
-    && ./configure --enable-pic --enable-static && make -j$(cat /build_concurrency) install \
+    && ./configure --enable-pic --disable-static && make -j$(cat /build_concurrency) install \
     && cd / && rm -rf x264 \
     \
     && wget -O - "https://bitbucket.org/multicoreware/x265/downloads/x265_$X265_VERSION.tar.gz" | tar xz \
     && cd x265_$X265_VERSION/build/linux \
-    && cmake -G "Unix Makefiles" -DENABLE_SHARED=OFF -DENABLE_AGGRESSIVE_CHECKS=ON ../../source \
+    && cmake -G "Unix Makefiles" -DENABLE_SHARED=ON -DENABLE_AGGRESSIVE_CHECKS=ON ../../source \
     && make -j$(cat /build_concurrency) install \
     && cd / && rm -rf x265_$X265_VERSION \
     \
     && wget -O - "https://github.com/webmproject/libwebp/archive/v$WEBP_VERSION.tar.gz" | tar xz \
     && cd libwebp-$WEBP_VERSION \
-    && ./autogen.sh && ./configure --enable-static --disable-shared && make -j$(cat /build_concurrency) install \
+    && ./autogen.sh && ./configure --enable-shared --disable-static && make -j$(cat /build_concurrency) install \
     && cd / && rm -rf libwebp-$WEBP_VERSION \
     \
     && wget -O - "https://github.com/dbry/WavPack/archive/$WAVPACK_VERSION.tar.gz" | tar xz \
     && cd WavPack-$WAVPACK_VERSION \
-    && ./autogen.sh && ./configure --enable-static --disable-shared && make -j$(cat /build_concurrency) install \
+    && ./autogen.sh && ./configure --enable-shared --disable-static && make -j$(cat /build_concurrency) install \
     && cd / && rm -rf WavPack-$WAVPACK_VERSION \
     \
     && wget -O - "https://github.com/xiph/speex/archive/Speex-$SPEEX_VERSION.tar.gz" | tar xz \
     && cd speex-Speex-$SPEEX_VERSION \
-    && ./autogen.sh && ./configure --enable-static --disable-shared && make -j$(cat /build_concurrency) install \
+    && ./autogen.sh && ./configure --enable-shared --disable-static && make -j$(cat /build_concurrency) install \
     && cd / && rm -rf EX_VERSION \
     \
     && git clone --branch v$AOM_VERSION --depth 1 "https://aomedia.googlesource.com/aom" \
     && cd aom \
     && mkdir build_tmp && cd build_tmp \
-    && cmake -DENABLE_SHARED=OFF -DENABLE_TESTS=0 .. \
+    && cmake -DENABLE_SHARED=ON -DENABLE_TESTS=0 .. \
     && make -j$(cat /build_concurrency) install \
     && cd / && rm -rf aom \
     \
     && wget -O - "https://github.com/georgmartius/vid.stab/archive/v$VIDSTAB_VERSION.tar.gz" | tar xz \
     && cd vid.stab-$VIDSTAB_VERSION \
-    && cmake -DBUILD_SHARED_LIBS=OFF . \
+    && cmake -DBUILD_SHARED_LIBS=ON . \
     && make -j$(cat /build_concurrency) install \
     && cd / && rm -rf vid.stab-$VIDSTAB_VERSION \
     \
     && wget -O - "https://github.com/ultravideo/kvazaar/archive/v$KVAZAAR_VERSION.tar.gz" | tar xz \
     && cd kvazaar-$KVAZAAR_VERSION \
-    && ./autogen.sh && ./configure --enable-static --disable-shared && make -j$(cat /build_concurrency) install \
+    && ./autogen.sh && ./configure --enable-shared --disable-static && make -j$(cat /build_concurrency) install \
     && cd / && rm -rf kvazaar-$KVAZAAR_VERSION \
     \
     && wget -O - "http://ffmpeg.org/releases/ffmpeg-$FFMPEG_VERSION.tar.gz" | tar xz \
     && cd ffmpeg-$FFMPEG_VERSION \
-    && LDFLAGS="-Wl,-z,relro -fPIE" ./configure \
+    && ./configure \
         --pkg-config-flags="--static" \
         --extra-libs="-lpthread -lm" \
         --toolchain=hardened \
