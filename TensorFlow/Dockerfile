@@ -2,7 +2,7 @@ FROM tensorflow/tensorflow:1.12.0-py3
 
 RUN ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 
-ARG RUNTIME_DEPS='wget unzip openssl git'
+ARG RUNTIME_DEPS='wget unzip git'
 ARG BUILD_DEPS='cmake yasm coreutils autoconf automake libtool diffutils texinfo jq pkg-config build-essential \
                 libssl-dev libpng-dev libjpeg-turbo8-dev libtiff-dev libopenexr-dev libjasper-dev libopenblas-dev zlib1g.dev'
 ARG LIB_PREFIX='/usr/local'
@@ -33,12 +33,9 @@ ARG HTTP_PROXY
 # -static-libgcc is needed to make gcc not include gcc_s as "as-needed" shared library which
 # cmake will include as a implicit library.
 # other options to get hardened build (same as ffmpeg hardened)
-# ENV CFLAGS="-O3 -static-libgcc -fno-strict-overflow -fstack-protector-all -fPIE"
-# ENV CXXFLAGS="-O3 -static-libgcc -fno-strict-overflow -fstack-protector-all -fPIE"
-# ENV LDFLAGS="-Wl,-z,relro -Wl,-z,now -fPIE -pie"
-ENV CFLAGS="-O3 -shared-libgcc -fno-strict-overflow -fstack-protector-all -fPIC"
-ENV CXXFLAGS="-O3 -shared-libgcc -fno-strict-overflow -fstack-protector-all -fPIC"
-ENV LDFLAGS="-Wl,-z,relro -fPIC -pic"
+ENV CFLAGS="-O3 -shared-libgcc -fno-strict-overflow -fstack-protector-all"
+ENV CXXFLAGS="-O3 -shared-libgcc -fno-strict-overflow -fstack-protector-all"
+# ENV LDFLAGS="-Wl,-z,relro -fPIE -pie"
 
 
 ENV LIB_PREFIX=${LIB_PREFIX}
@@ -113,7 +110,7 @@ RUN \
     && git clone git://git.videolan.org/x264.git \
     && cd x264 \
     && git checkout $X264_VERSION \
-    && ./configure --enable-pic --disable-static && make -j$(cat /build_concurrency) install \
+    && ./configure --enable-pic --enable-shared --disable-static && make -j$(cat /build_concurrency) install \
     && cd / && rm -rf x264 \
     \
     && wget -O - "https://bitbucket.org/multicoreware/x265/downloads/x265_$X265_VERSION.tar.gz" | tar xz \
