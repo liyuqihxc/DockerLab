@@ -66,7 +66,7 @@ RUN \
     && apt-get install -y $RUNTIME_DEPS \
     && apt-get install -y $BUILD_DEPS \
     && if [ ! -z "${HTTP_PROXY}" ] ; then git config --global http.proxy ${HTTP_PROXY} && git config --global https.proxy ${HTTP_PROXY} ; fi \
-    && if [ ! -z "${HTTP_PROXY}" ] ; then export use_proxy=on && export http_proxy=${HTTP_PROXY} && export https_proxy=${HTTPS_PROXY} ; fi \
+    && if [ ! -z "${HTTP_PROXY}" ] ; then export use_proxy=yes && export http_proxy=${HTTP_PROXY} && export https_proxy=${HTTPS_PROXY} ; fi \
     \
     && wget -O - "https://www.nasm.us/pub/nasm/releasebuilds/2.14.02/nasm-2.14.02.tar.gz" | tar xz \
     && cd nasm-2.14.02 \
