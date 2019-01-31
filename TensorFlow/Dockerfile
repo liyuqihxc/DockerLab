@@ -3,7 +3,7 @@ FROM tensorflow/tensorflow:1.12.0-py3
 RUN ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 
 ARG RUNTIME_DEPS='wget unzip git'
-ARG BUILD_DEPS='cmake gcc gcc-c++ yasm coreutils autoconf automake libtool diffutils texinfo jq pkg-config build-essential \
+ARG BUILD_DEPS='cmake gcc yasm coreutils autoconf automake libtool diffutils texinfo jq pkg-config build-essential \
                 libssl-dev libpng-dev libjpeg-turbo8-dev libtiff-dev libopenexr-dev libjasper-dev libopenblas-dev zlib1g.dev'
 ARG LIB_PREFIX='/usr/local'
 ARG OPENCV_VERSION=4.0.1
@@ -36,8 +36,8 @@ ARG HTTP_PROXY
 # ENV CFLAGS="-O3 -static-libgcc -fno-strict-overflow -fstack-protector-all -fPIE"
 # ENV CXXFLAGS="-O3 -static-libgcc -fno-strict-overflow -fstack-protector-all -fPIE"
 # ENV LDFLAGS="-Wl,-z,relro -Wl,-z,now -fPIE -pie"
-ENV CFLAGS="-O3 -fno-strict-overflow -fstack-protector-all -fPIC"
-ENV CXXFLAGS="-O3 -fno-strict-overflow -fstack-protector-all -fPIC"
+ENV CFLAGS="-O3 -shared-libgcc -fno-strict-overflow -fstack-protector-all -fPIC"
+ENV CXXFLAGS="-O3 -shared-libgcc -fno-strict-overflow -fstack-protector-all -fPIC"
 ENV LDFLAGS="-Wl,-z,relro -fPIC -pic"
 
 
