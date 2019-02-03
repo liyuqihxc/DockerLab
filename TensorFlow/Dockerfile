@@ -103,7 +103,7 @@ RUN git clone git://git.videolan.org/x264.git \
     && git checkout $X264_VERSION \
     && ./configure --enable-pic --enable-shared --disable-static && make -j$(cat /build_concurrency) install
 
-RUN wget -O - "https://bitbucket.org/multicoreware/x265/downloads/x265_$X265_VERSION.tar.gz" | tar xz \
+RUN wget -O - "http://ftp.videolan.org/pub/videolan/x265/x265_$X265_VERSION.tar.gz" | tar xz \
     && mv x265_$X265_VERSION x265 && cd x265/build/linux \
     && cmake -G "Unix Makefiles" -DENABLE_SHARED=ON -DENABLE_AGGRESSIVE_CHECKS=ON ../../source \
     && make -j$(cat /build_concurrency) install
