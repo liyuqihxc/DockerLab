@@ -66,10 +66,6 @@ RUN \
     && apt-get install -y $BUILD_DEPS \
     && if [ ! -z "${HTTP_PROXY}" ] ; then git config --global http.proxy ${HTTP_PROXY} && git config --global https.proxy ${HTTPS_PROXY} ; fi
 
-# RUN wget -O - "https://www.nasm.us/pub/nasm/releasebuilds/2.14.02/nasm-2.14.02.tar.gz" | tar xz \
-#     && cd nasm-2.14.02 \
-#     && ./configure && make -j$(cat /build_concurrency) install
-
 RUN wget -O - "https://sourceforge.net/projects/lame/files/lame/$MP3LAME_VERSION/lame-$MP3LAME_VERSION.tar.gz/download" | tar xz \
     && mv lame-$MP3LAME_VERSION lame && cd lame \
     && ./configure --enable-shared --disable-static && make -j$(cat /build_concurrency) install
@@ -97,6 +93,10 @@ RUN wget -O - "https://downloads.xiph.org/releases/theora/libtheora-$THEORA_VERS
 RUN wget -O - "https://github.com/webmproject/libvpx/archive/v$VPX_VERSION.tar.gz" | tar xz \
     && mv libvpx-$VPX_VERSION libvpx && cd libvpx \
     && ./configure --disable-unit-tests --enable-shared --disable-static && make -j$(cat /build_concurrency) install
+
+RUN wget -O - "https://www.nasm.us/pub/nasm/releasebuilds/2.14.02/nasm-2.14.02.tar.gz" | tar xz \
+    && cd nasm-2.14.02 \
+    && ./configure && make -j$(cat /build_concurrency) install
 
 RUN git clone git://git.videolan.org/x264.git \
     && cd x264 \
