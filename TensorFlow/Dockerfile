@@ -2,7 +2,7 @@ ARG UBUNTU_VERSION=16.04
 
 FROM ubuntu:${UBUNTU_VERSION} as builder
 
-ARG BUILD_DEPS='wget unzip python3 python3-pip git cmake yasm nasm coreutils autoconf automake libtool diffutils texinfo jq pkg-config build-essential \
+ARG BUILD_DEPS='wget unzip python3 python3-pip git cmake yasm coreutils autoconf automake libtool diffutils texinfo jq pkg-config build-essential \
                 libssl-dev libpng-dev libjpeg-turbo8-dev libtiff-dev libopenexr-dev libjasper-dev libopenblas-dev zlib1g.dev'
 ARG LIB_PREFIX='/usr/local'
 ARG OPENCV_VERSION=4.0.1
