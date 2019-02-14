@@ -2,7 +2,7 @@ ARG UBUNTU_VERSION=16.04
 
 FROM ubuntu:${UBUNTU_VERSION} as builder
 
-ARG BUILD_DEPS='wget unzip python3 python3-pip git cmake yasm coreutils autoconf automake libtool diffutils texinfo jq pkg-config build-essential \
+ARG BUILD_DEPS='wget unzip python3 python3-pip git cmake yasm nasm coreutils autoconf automake libtool diffutils texinfo jq pkg-config build-essential \
                 libssl-dev libpng-dev libjpeg-turbo8-dev libtiff-dev libopenexr-dev libjasper-dev libopenblas-dev zlib1g.dev'
 ARG LIB_PREFIX='/usr/local'
 ARG OPENCV_VERSION=4.0.1
@@ -26,7 +26,7 @@ ARG VIDSTAB_VERSION=1.1.0
 ARG KVAZAAR_VERSION=1.2.0
 ARG HTTP_PROXY
 ARG HTTPS_PROXY
-ARG USE_PROXY=no
+ARG USE_PROXY=off
 
 
 # -O3 makes sure we compile with optimization. setting CFLAGS/CXXFLAGS seems to override
@@ -66,9 +66,9 @@ RUN \
     && apt-get install -y $BUILD_DEPS \
     && if [ ! -z "${HTTP_PROXY}" ] ; then git config --global http.proxy ${HTTP_PROXY} && git config --global https.proxy ${HTTP_PROXY} ; fi
 
-RUN wget -O - "https://www.nasm.us/pub/nasm/releasebuilds/2.14.02/nasm-2.14.02.tar.gz" | tar xz \
-    && cd nasm-2.14.02 \
-    && ./configure && make -j$(cat /build_concurrency) install
+# RUN wget -O - "https://www.nasm.us/pub/nasm/releasebuilds/2.14.02/nasm-2.14.02.tar.gz" | tar xz \
+#     && cd nasm-2.14.02 \
+#     && ./configure && make -j$(cat /build_concurrency) install
 
 RUN wget -O - "https://sourceforge.net/projects/lame/files/lame/$MP3LAME_VERSION/lame-$MP3LAME_VERSION.tar.gz/download" | tar xz \
     && mv lame-$MP3LAME_VERSION lame && cd lame \
