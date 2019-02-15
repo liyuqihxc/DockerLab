@@ -123,7 +123,7 @@ RUN wget -O - "https://github.com/xiph/speex/archive/Speex-$SPEEX_VERSION.tar.gz
 RUN git clone --branch v$AOM_VERSION --depth 1 "https://aomedia.googlesource.com/aom" \
     && cd aom \
     && mkdir build_tmp && cd build_tmp \
-    && cmake -DENABLE_SHARED=1 -DENABLE_TESTS=0 .. \
+    && cmake -DBUILD_SHARED_LIBS=1 -DENABLE_TESTS=0 .. \
     && make -j$(cat /build_concurrency) install
 
 RUN wget -O - "https://github.com/georgmartius/vid.stab/archive/v$VIDSTAB_VERSION.tar.gz" | tar xz \
