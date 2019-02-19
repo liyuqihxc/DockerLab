@@ -13,10 +13,10 @@ RUN git clone https://github.com/loic-sharma/BaGet.git \
     && cd BaGet \
     && git checkout v${BAGET_VERSION}
 
-RUN cd BaGet \
-    && dotnet restore \
-    && dotnet build -c Release --no-restore \
-    && dotnet publish -c Release --no-restore --no-build -o Publish \
+RUN cd BaGet/src \
+    && dotnet restore BaGet \
+    && dotnet build BaGet -c Release --no-restore \
+    && dotnet publish BaGet -c Release --no-restore --no-build -o Publish \
     && echo -e "{\"urls\": \"http://*:${BAGET_PORT}\"}" > Publish/hosting.json
 
 
