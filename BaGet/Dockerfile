@@ -7,7 +7,7 @@ ARG BAGET_DIR="/var/baget"
 
 RUN set -ex \
     && sed -i 's/http:\/\/dl-cdn.alpinelinux.org/https:\/\/mirrors.ustc.edu.cn/g' /etc/apk/repositories \
-    && apk add git wget nodejs
+    && apk add git wget nodejs nodejs-npm
 
 RUN git clone https://github.com/loic-sharma/BaGet.git \
     && cd BaGet \
