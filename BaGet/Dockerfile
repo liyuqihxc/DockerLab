@@ -1,8 +1,26 @@
-FROM microsoft/dotnet:2.2.2-aspnetcore-runtime-alpine3.8
+FROM microsoft/dotnet:2.2-sdk-alpine as builder
 
 ARG BAGET_VERSION="0.1.54-prerelease"
+ARG NVM_VERSION="0.34.0"
 ARG BAGET_PORT=8000
 ARG BAGET_DIR="/var/baget"
+
+RUN set -ex \
+    && sed -i 's/http:\/\/dl-cdn.alpinelinux.org/https:\/\/mirrors.ustc.edu.cn/g' /etc/apk/repositories \
+    && apk add git wget
+
+RUN git clone https://github.com/loic-sharma/BaGet.git \
+    && cd BaGet \
+    && git checkout v${BAGET_VERSION} \
+    && wget -O- https://raw.githubusercontent.com/creationix/nvm/v${NVM_VERSION}/install.sh | bash \
+    && nvm install --lts \
+    && dotnet restore \
+    && dotnet build -c Release --no-restore \
+    && dotnet publish -c Release --no-restore --no-build -o Publish \
+    && echo -e "{\"urls\": \"http://*:${BAGET_PORT}\"}" > Publish/hosting.json
+
+
+FROM microsoft/dotnet:2.2.2-aspnetcore-runtime-alpine3.8
 
 ENV Storage__Type="FileSystem" \
     Storage__Path="${BAGET_DIR}/packages" \
@@ -10,17 +28,7 @@ ENV Storage__Type="FileSystem" \
     Database__ConnectionString="Data Source=${BAGET_DIR}/baget.db" \
     Search__Type="Database"
 
-RUN \
-    set -ex \
-    && sed -i 's/http:\/\/dl-cdn.alpinelinux.org/https:\/\/mirrors.ustc.edu.cn/g' /etc/apk/repositories \
-    # Build environment setup
-    && apk add --no-cache --virtual .build-deps wget unzip \
-    # Download BaGet
-    && wget -O BaGet.zip https://github.com/loic-sharma/BaGet/releases/download/v${BAGET_VERSION}/BaGet.zip \
-    && unzip BaGet.zip -d /baget && rm -rf BaGet.zip \
-    && echo -e "{\"urls\": \"http://*:${BAGET_PORT}\"}" > /baget/hosting.json \
-    && apk del .build-deps \
-    && rm -rf /tmp/* /var/cache/apk/*
+COPY --from=builder /BaGet/Publish /baget
 
 WORKDIR /baget
 
