@@ -19,7 +19,7 @@ RUN \
     # Download BaGet
     && wget -O BaGet.zip https://github.com/loic-sharma/BaGet/releases/download/v${BAGET_VERSION}/BaGet.zip \
     && unzip BaGet.zip -d /baget && rm -rf BaGet.zip \
-    && echo -e "{\"urls\": \"http://*:${BAGET_PORT}\"}" > /baget.json \
+    && echo -e "{\"urls\": \"http://*:${BAGET_PORT}\"}" > /baget/hosting.json \
     && apk del .build-deps \
     && rm -rf /tmp/* /var/cache/apk/*
 
