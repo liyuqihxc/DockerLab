@@ -11,9 +11,12 @@ RUN set -ex \
 
 RUN git clone https://github.com/loic-sharma/BaGet.git \
     && cd BaGet \
-    && git checkout v${BAGET_VERSION} \
-    && wget -O- https://raw.githubusercontent.com/creationix/nvm/v${NVM_VERSION}/install.sh | bash \
-    && nvm install --lts \
+    && git checkout v${BAGET_VERSION}
+
+RUN wget -O- https://raw.githubusercontent.com/creationix/nvm/v${NVM_VERSION}/install.sh | sh \
+    && nvm install --lts
+
+RUN cd BaGet \
     && dotnet restore \
     && dotnet build -c Release --no-restore \
     && dotnet publish -c Release --no-restore --no-build -o Publish \
