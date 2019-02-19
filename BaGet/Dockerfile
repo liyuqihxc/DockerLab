@@ -4,12 +4,12 @@ ARG BAGET_VERSION="0.1.54-prerelease"
 ARG BAGET_PORT=8000
 ARG BAGET_DIR="/var/baget"
 
-ENV ApiKey=
-ENV Storage__Type=FileSystem
-ENV Storage__Path=${BAGET_DIR}/packages
-ENV Database__Type=Sqlite
-ENV Database__ConnectionString=Data Source=${BAGET_DIR}/baget.db
-ENV Search__Type=Database
+ENV ApiKey=""
+ENV Storage__Type="FileSystem"
+ENV Storage__Path="${BAGET_DIR}/packages"
+ENV Database__Type="Sqlite"
+ENV Database__ConnectionString="Data Source=${BAGET_DIR}/baget.db"
+ENV Search__Type="Database"
 
 RUN \
     set -ex \
