@@ -7,14 +7,11 @@ ARG BAGET_DIR="/var/baget"
 
 RUN set -ex \
     && sed -i 's/http:\/\/dl-cdn.alpinelinux.org/https:\/\/mirrors.ustc.edu.cn/g' /etc/apk/repositories \
-    && apk add git wget
+    && apk add git wget nodejs
 
 RUN git clone https://github.com/loic-sharma/BaGet.git \
     && cd BaGet \
     && git checkout v${BAGET_VERSION}
-
-RUN wget -O- https://raw.githubusercontent.com/creationix/nvm/v${NVM_VERSION}/install.sh | sh \
-    && nvm install --lts
 
 RUN cd BaGet \
     && dotnet restore \
