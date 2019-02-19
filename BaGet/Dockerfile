@@ -16,8 +16,8 @@ RUN git clone https://github.com/loic-sharma/BaGet.git \
 RUN cd BaGet/src \
     && dotnet restore BaGet \
     && dotnet build BaGet -c Release --no-restore \
-    && dotnet publish BaGet -c Release --no-restore --no-build -o Publish \
-    && echo -e "{\"urls\": \"http://*:${BAGET_PORT}\"}" > Publish/hosting.json
+    && dotnet publish BaGet -c Release --no-restore --no-build -o /Publish \
+    && echo -e "{\"urls\": \"http://*:${BAGET_PORT}\"}" > /Publish/hosting.json
 
 
 FROM microsoft/dotnet:2.2.2-aspnetcore-runtime-alpine3.8
@@ -28,7 +28,7 @@ ENV Storage__Type="FileSystem" \
     Database__ConnectionString="Data Source=${BAGET_DIR}/baget.db" \
     Search__Type="Database"
 
-COPY --from=builder /BaGet/Publish /baget
+COPY --from=builder /Publish /baget
 
 WORKDIR /baget
 
