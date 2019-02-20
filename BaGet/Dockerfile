@@ -2,7 +2,6 @@ FROM microsoft/dotnet:2.2-sdk as builder
 
 ARG BAGET_VERSION="0.1.54-prerelease"
 ARG NVM_VERSION="0.34.0"
-ARG BAGET_PORT=8000
 
 RUN mv /etc/apt/sources.list /etc/apt/sources.list.bak \
     && echo "deb http://mirrors.163.com/debian/ stretch main non-free contrib"                       >> /etc/apt/sources.list \
@@ -25,9 +24,10 @@ RUN git clone https://github.com/loic-sharma/BaGet.git \
 RUN cd BaGet/src \
     && dotnet restore BaGet \
     && dotnet build BaGet -c Release --no-restore \
-    && dotnet publish BaGet -c Release --no-restore --no-build -o /Publish \
-    && echo "{\"urls\": \"http://*:${BAGET_PORT}\"}" > /Publish/hosting.json
+    && dotnet publish BaGet -c Release --no-restore --no-build -o /Publish
 
+
+# docker run --rm -d -p 8000:80 -v "$(pwd)/baget-data:/var/baget" -e APIKEY=123456789 baget:0.1.54-prerelease
 
 FROM microsoft/dotnet:2.2-aspnetcore-runtime
 
@@ -45,6 +45,6 @@ WORKDIR /baget
 
 VOLUME ["${BAGET_DIR}"]
 
-EXPOSE ${BAGET_PORT}
+EXPOSE 80
 
 CMD exec dotnet BaGet.dll
