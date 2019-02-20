@@ -5,6 +5,7 @@ ARG NVM_VERSION="0.34.0"
 
 RUN set -ex \
     && sed -i 's/http:\/\/dl-cdn.alpinelinux.org/https:\/\/mirrors.ustc.edu.cn/g' /etc/apk/repositories \
+    && wget -O- https://deb.nodesource.com/setup_8.x | sh - \
     && apk add git wget nodejs nodejs-npm
 
 RUN git clone https://github.com/loic-sharma/BaGet.git \
@@ -21,20 +22,20 @@ RUN cd BaGet/src \
 FROM microsoft/dotnet:2.2.2-aspnetcore-runtime-alpine3.8
 
 ARG BAGET_PORT=8000
-ARG BAGET_DIR="/var/baget"
+# ARG BAGET_DIR="/var/baget"
 
-ENV Storage__Type="FileSystem" \
-    Storage__Path="${BAGET_DIR}/packages" \
-    Database__Type="Sqlite" \
-    Database__ConnectionString="Data Source=${BAGET_DIR}/baget.db" \
-    Search__Type="Database"
+# ENV Storage__Type="FileSystem" \
+#     Storage__Path="${BAGET_DIR}/packages" \
+#     Database__Type="Sqlite" \
+#     Database__ConnectionString="Data Source=${BAGET_DIR}/baget.db" \
+#     Search__Type="Database"
 
 COPY --from=builder /Publish /baget
 
 WORKDIR /baget
 
-VOLUME ["${BAGET_DIR}"]
+# VOLUME ["${BAGET_DIR}"]
 
 EXPOSE ${BAGET_PORT}
 
-CMD ["dotnet BaGet.dll"]
+CMD exec dotnet BaGet.dll
