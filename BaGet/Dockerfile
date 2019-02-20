@@ -27,11 +27,8 @@ RUN cd BaGet/src \
     && dotnet publish BaGet -c Release --no-restore --no-build -o /Publish
 
 
-# docker run --rm -d -p 8000:80 -v "$(pwd)/baget-data:/var/baget" -e APIKEY=123456789 baget:0.1.54-prerelease
-
 FROM microsoft/dotnet:2.2-aspnetcore-runtime
 
-ARG BAGET_PORT=8000
 ARG BAGET_DIR="/var/baget"
 
 ENV Storage__Path="${BAGET_DIR}/packages" \
