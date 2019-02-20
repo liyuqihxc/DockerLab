@@ -13,7 +13,7 @@ RUN mv /etc/apt/sources.list /etc/apt/sources.list.bak \
     && echo "deb-src http://mirrors.163.com/debian/ stretch-backports main non-free contrib"         >> /etc/apt/sources.list \
     && echo "deb http://mirrors.163.com/debian-security/ stretch/updates main non-free contrib"      >> /etc/apt/sources.list \
     && echo "deb-src http://mirrors.163.com/debian-security/ stretch/updates main non-free contrib"  >> /etc/apt/sources.list \
-    && apt-get add --update git wget nodejs nodejs-npm
+    && apt-get install git wget nodejs nodejs-npm
 
 RUN git clone https://github.com/loic-sharma/BaGet.git \
     && cd BaGet \
