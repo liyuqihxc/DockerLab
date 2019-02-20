@@ -1,11 +1,19 @@
-FROM microsoft/dotnet:2.2-sdk-alpine as builder
+FROM microsoft/dotnet:2.2-sdk as builder
 
 ARG BAGET_VERSION="0.1.54-prerelease"
 ARG NVM_VERSION="0.34.0"
+ARG BAGET_PORT=8000
 
-RUN set -ex \
-    && sed -i 's/http:\/\/dl-cdn.alpinelinux.org/https:\/\/mirrors.ustc.edu.cn/g' /etc/apk/repositories \
-    && apk add --update git wget nodejs nodejs-npm
+RUN mv /etc/apt/sources.list /etc/apt/sources.list.bak \
+    && echo "deb http://mirrors.163.com/debian/ stretch main non-free contrib"                       >> /etc/apt/sources.list \
+    && echo "deb http://mirrors.163.com/debian/ stretch-updates main non-free contrib"               >> /etc/apt/sources.list \
+    && echo "deb http://mirrors.163.com/debian/ stretch-backports main non-free contrib"             >> /etc/apt/sources.list \
+    && echo "deb-src http://mirrors.163.com/debian/ stretch main non-free contrib"                   >> /etc/apt/sources.list \
+    && echo "deb-src http://mirrors.163.com/debian/ stretch-updates main non-free contrib"           >> /etc/apt/sources.list \
+    && echo "deb-src http://mirrors.163.com/debian/ stretch-backports main non-free contrib"         >> /etc/apt/sources.list \
+    && echo "deb http://mirrors.163.com/debian-security/ stretch/updates main non-free contrib"      >> /etc/apt/sources.list \
+    && echo "deb-src http://mirrors.163.com/debian-security/ stretch/updates main non-free contrib"  >> /etc/apt/sources.list \
+    && apt-get add --update git wget nodejs nodejs-npm
 
 RUN git clone https://github.com/loic-sharma/BaGet.git \
     && cd BaGet \
@@ -18,22 +26,21 @@ RUN cd BaGet/src \
     && echo -e "{\"urls\": \"http://*:${BAGET_PORT}\"}" > /Publish/hosting.json
 
 
-FROM microsoft/dotnet:2.2.2-aspnetcore-runtime-alpine3.8
+FROM microsoft/dotnet:2.2-aspnetcore-runtime
 
 ARG BAGET_PORT=8000
-# ARG BAGET_DIR="/var/baget"
+ARG BAGET_DIR="/var/baget"
 
-# ENV Storage__Type="FileSystem" \
-#     Storage__Path="${BAGET_DIR}/packages" \
-#     Database__Type="Sqlite" \
-#     Database__ConnectionString="Data Source=${BAGET_DIR}/baget.db" \
-#     Search__Type="Database"
+ENV Storage__Path="${BAGET_DIR}/packages" \
+    Database__ConnectionString="Data Source=${BAGET_DIR}/baget.db"
+
+RUN ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 
 COPY --from=builder /Publish /baget
 
 WORKDIR /baget
 
-# VOLUME ["${BAGET_DIR}"]
+VOLUME ["${BAGET_DIR}"]
 
 EXPOSE ${BAGET_PORT}
 
