@@ -5,8 +5,7 @@ ARG NVM_VERSION="0.34.0"
 
 RUN set -ex \
     && sed -i 's/http:\/\/dl-cdn.alpinelinux.org/https:\/\/mirrors.ustc.edu.cn/g' /etc/apk/repositories \
-    && wget -O- https://deb.nodesource.com/setup_8.x | sh - \
-    && apk add git wget nodejs nodejs-npm
+    && apk add --update git wget nodejs nodejs-npm
 
 RUN git clone https://github.com/loic-sharma/BaGet.git \
     && cd BaGet \
