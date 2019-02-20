@@ -13,6 +13,7 @@ RUN mv /etc/apt/sources.list /etc/apt/sources.list.bak \
     && echo "deb-src http://mirrors.163.com/debian/ stretch-backports main non-free contrib"         >> /etc/apt/sources.list \
     && echo "deb http://mirrors.163.com/debian-security/ stretch/updates main non-free contrib"      >> /etc/apt/sources.list \
     && echo "deb-src http://mirrors.163.com/debian-security/ stretch/updates main non-free contrib"  >> /etc/apt/sources.list \
+    && apt-get update -y && apt-get update \
     && apt-get install -y git wget \
     && wget -O- "https://deb.nodesource.com/setup_8.x" | bash - \
     && apt-get install -y nodejs
@@ -25,7 +26,7 @@ RUN cd BaGet/src \
     && dotnet restore BaGet \
     && dotnet build BaGet -c Release --no-restore \
     && dotnet publish BaGet -c Release --no-restore --no-build -o /Publish \
-    && echo -e "{\"urls\": \"http://*:${BAGET_PORT}\"}" > /Publish/hosting.json
+    && echo "{\"urls\": \"http://*:${BAGET_PORT}\"}" > /Publish/hosting.json
 
 
 FROM microsoft/dotnet:2.2-aspnetcore-runtime
