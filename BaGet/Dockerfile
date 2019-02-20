@@ -31,8 +31,11 @@ FROM microsoft/dotnet:2.2-aspnetcore-runtime
 
 ARG BAGET_DIR="/var/baget"
 
-ENV Storage__Path="${BAGET_DIR}/packages" \
+ENV Storage__Type="FileSystem" \
+    Storage__Path="${BAGET_DIR}/packages" \
+    Database__Type="Sqlite" \
     Database__ConnectionString="Data Source=${BAGET_DIR}/baget.db" \
+    Search__Type="Database" \
     Mirror__Enabled="true"
 
 RUN ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
