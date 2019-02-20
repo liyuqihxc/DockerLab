@@ -47,4 +47,4 @@ VOLUME ["${BAGET_DIR}"]
 
 EXPOSE 80
 
-CMD exec dotnet BaGet.dll
+ENTRYPOINT [ "dotnet", "BaGet.dll"]
