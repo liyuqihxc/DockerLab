@@ -2,8 +2,6 @@ FROM microsoft/dotnet:2.2-sdk-alpine as builder
 
 ARG BAGET_VERSION="0.1.54-prerelease"
 ARG NVM_VERSION="0.34.0"
-ARG BAGET_PORT=8000
-ARG BAGET_DIR="/var/baget"
 
 RUN set -ex \
     && sed -i 's/http:\/\/dl-cdn.alpinelinux.org/https:\/\/mirrors.ustc.edu.cn/g' /etc/apk/repositories \
@@ -22,6 +20,9 @@ RUN cd BaGet/src \
 
 FROM microsoft/dotnet:2.2.2-aspnetcore-runtime-alpine3.8
 
+ARG BAGET_PORT=8000
+ARG BAGET_DIR="/var/baget"
+
 ENV Storage__Type="FileSystem" \
     Storage__Path="${BAGET_DIR}/packages" \
     Database__Type="Sqlite" \
@@ -36,4 +37,4 @@ VOLUME ["${BAGET_DIR}"]
 
 EXPOSE ${BAGET_PORT}
 
-ENTRYPOINT ["dotnet", "BaGet.dll"]
+CMD ["dotnet BaGet.dll"]
