@@ -5,7 +5,7 @@ FROM debian:9
 # https://blog.csdn.net/qq_37187976/article/details/79231854
 # https://www.cnblogs.com/Eivll0m/p/6700828.html
 
-ARG RUNTIME_DEPS="rsyslog httpd php php-mysql php-gd rsyslog-mysql"
+ARG RUNTIME_DEPS="rsyslog apache2 php php-mysql php-gd rsyslog-mysql"
 ARG BUILD_DEPS="wget"
 
 ARG LOGANALYZER_VERSION="4.1.7"
