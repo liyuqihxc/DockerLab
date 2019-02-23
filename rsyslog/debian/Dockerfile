@@ -5,10 +5,11 @@ FROM debian:9
 # https://blog.csdn.net/qq_37187976/article/details/79231854
 # https://www.cnblogs.com/Eivll0m/p/6700828.html
 
-ARG RUNTIME_DEPS="rsyslog apache2 php php-mysql php-gd rsyslog-mysql"
-ARG BUILD_DEPS="wget expect"
-
 ARG LOGANALYZER_VERSION="4.1.7"
+ARG RSYSLOG_VERSION="8.24.0"
+
+ARG RUNTIME_DEPS="rsyslog=${RSYSLOG_VERSION} rsyslog-mysql apache2 php php-mysql php-gd"
+ARG BUILD_DEPS="wget expect"
 
 RUN mv /etc/apt/sources.list /etc/apt/sources.list.bak \
   && echo "deb http://mirrors.163.com/debian/ stretch main non-free contrib"                       >> /etc/apt/sources.list \
@@ -30,7 +31,7 @@ RUN apt-get update -y && apt-get update \
   && cd /var/www/html/loganalyzer \
   && touch config.php \
   && chmod 666 config.php \
-  \
+  && apt-get remove --purge -y ${BUILD_DEPS} \
   && printf "\
   set timeout -1\n \
   spawn apt-get install -y ${RUNTIME_DEPS} \n \
@@ -39,10 +40,9 @@ RUN apt-get update -y && apt-get update \
   }\n \
   expect eof\n \
   " | expect \
-  && apt-get remove --purge -y ${BUILD_DEPS} \
   && apt-get autoclean && apt-get clean && apt-get autoremove \
   && rm -rf /var/lib/apt/lists/*
 
-VOLUME [ "/data" ]
+VOLUME [ "/config" ]
 
 CMD ["rsyslog"]
