@@ -23,13 +23,15 @@ RUN mv /etc/apt/sources.list /etc/apt/sources.list.bak \
 RUN apt-get update -y && apt-get update \
     && apt-get install -y ${BUILD_DEPS} \
     && wget -O- http://download.adiscon.com/loganalyzer/loganalyzer-${LOGANALYZER_VERSION}.tar.gz | tar xz \
-    && cp -a loganalyzer-4.1.6/src /var/www/html/loganalyzer \
+    && cp -a loganalyzer-${LOGANALYZER_VERSION}/src /var/www/html/loganalyzer \
     && cd /var/www/html/loganalyzer \
     && touch config.php \
     && chmod 666 config.php \
     \
-    && apt-get remove --purge -y $BUILD_DEPS \
-    && apt-get install -y $RUNTIME_DEPS \
-    && rm -rf /var/lib/apt/lists/* \
+    && apt-get remove --purge -y ${BUILD_DEPS} \
+    && apt-get install -y ${RUNTIME_DEPS} \
+    && rm -rf /var/lib/apt/lists/*
+
+VOLUME [ "/data" ]
 
 CMD ["rsyslog"]
