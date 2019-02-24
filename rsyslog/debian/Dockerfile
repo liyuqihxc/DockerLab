@@ -40,7 +40,6 @@ RUN apt-get update -y && apt-get update \
   && cd /var/www/html/loganalyzer \
   && touch config.php \
   && chmod 666 config.php \
-  && apt-get remove --purge -y ${BUILD_DEPS} \
   && printf "\
   set timeout -1\n \
   spawn apt-get install -y ${RUNTIME_DEPS} \n \
@@ -49,6 +48,7 @@ RUN apt-get update -y && apt-get update \
   }\n \
   expect eof\n \
   " | expect \
+  && apt-get remove --purge -y ${BUILD_DEPS} \
   && apt-get autoclean && apt-get clean && apt-get autoremove \
   && rm -rf /var/lib/apt/lists/*
 
