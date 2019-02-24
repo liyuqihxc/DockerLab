@@ -8,7 +8,16 @@ FROM debian:9
 ARG LOGANALYZER_VERSION="4.1.7"
 ARG RSYSLOG_VERSION="8.24.0"
 
-ARG RUNTIME_DEPS="rsyslog=${RSYSLOG_VERSION} rsyslog-mysql apache2 php php-mysql php-gd"
+ARG RUNTIME_DEPS="apache2 php php-mysql php-gd \
+  rsyslog \
+  rsyslog-mysql \
+  rsyslog-elasticsearch \
+  rsyslog-imptcp \
+  rsyslog-imrelp \
+  rsyslog-mmjsonparse \
+  rsyslog-mmutf8fix \
+  rsyslog-omrelp \
+  rsyslog-omstdout"
 ARG BUILD_DEPS="wget expect"
 
 RUN mv /etc/apt/sources.list /etc/apt/sources.list.bak \
@@ -43,6 +52,18 @@ RUN apt-get update -y && apt-get update \
   && apt-get autoclean && apt-get clean && apt-get autoremove \
   && rm -rf /var/lib/apt/lists/*
 
-VOLUME [ "/config" ]
+RUN adduser -D rsyslog rsyslog \
+  && echo "rsyslog ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+
+COPY rsyslog.conf /etc/rsyslog.conf
+COPY rsyslog.conf.d/*.conf /etc/rsyslog.conf.d/
+
+VOLUME [ "/config" "/work" "/log" ]
+
+WORKDIR /home/rsyslog
+
+COPY	starter.sh ./
+COPY	tools/* ./tools/
 
 CMD ["rsyslog"]
+ENTRYPOINT ["starter.sh"]
