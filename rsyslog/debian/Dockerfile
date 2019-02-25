@@ -8,7 +8,7 @@ FROM debian:9
 ARG LOGANALYZER_VERSION="4.1.7"
 ARG RSYSLOG_VERSION="8.24.0"
 
-ARG RUNTIME_DEPS="apache2 php php-mysql php-gd expect \
+ARG RUNTIME_DEPS="apache2 php php-mysql php-gd \
   rsyslog \
   rsyslog-mysql \
   rsyslog-elasticsearch"
@@ -25,7 +25,7 @@ RUN mv /etc/apt/sources.list /etc/apt/sources.list.bak \
   && echo "deb-src http://mirrors.163.com/debian-security/ stretch/updates main non-free contrib"  >> /etc/apt/sources.list
 
 RUN apt-get update -y && apt-get update \
-  && apt-get install -y ${BUILD_DEPS} \
+  && apt-get install -y ${BUILD_DEPS} expect \
   && wget -O- "http://192.168.100.70:8080/loganalyzer-${LOGANALYZER_VERSION}.tar.gz" | tar xz \
   && mkdir -p /var/www/html/loganalyzer \
   && cp -a loganalyzer-${LOGANALYZER_VERSION}/src /var/www/html/loganalyzer \
@@ -53,6 +53,7 @@ RUN apt-get update -y && apt-get update \
   }\n \
   expect eof\n \
   " | expect \
+  && apt-get remove --purge -y expect \
   && rm -rf /var/lib/apt/lists/*
 
 RUN adduser -D rsyslog rsyslog \
