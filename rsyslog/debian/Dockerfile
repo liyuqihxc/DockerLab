@@ -11,13 +11,7 @@ ARG RSYSLOG_VERSION="8.24.0"
 ARG RUNTIME_DEPS="apache2 php php-mysql php-gd \
   rsyslog \
   rsyslog-mysql \
-  rsyslog-elasticsearch \
-  rsyslog-imptcp \
-  rsyslog-imrelp \
-  rsyslog-mmjsonparse \
-  rsyslog-mmutf8fix \
-  rsyslog-omrelp \
-  rsyslog-omstdout"
+  rsyslog-elasticsearch"
 ARG BUILD_DEPS="wget expect"
 
 RUN mv /etc/apt/sources.list /etc/apt/sources.list.bak \
