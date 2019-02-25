@@ -42,8 +42,17 @@ RUN apt-get update -y && apt-get update \
   }\n \
   expect eof\n \
   " | expect \
+  && service rsyslog restart \
+  && service apache2 restart \
   && apt-get remove --purge -y ${BUILD_DEPS} \
-  && apt-get autoclean && apt-get clean && apt-get autoremove \
+  && printf "\
+  set timeout -1\n \
+  spawn apt-get autoclean && apt-get clean && apt-get autoremove \n \
+  expect {\n \
+    \"Do you want to continue? \\\\\\\\\[yes/no\\\\\\\\\]\" { send \"yes\\\n\" } \n \
+  }\n \
+  expect eof\n \
+  " | expect \
   && rm -rf /var/lib/apt/lists/*
 
 RUN adduser -D rsyslog rsyslog \
@@ -53,6 +62,7 @@ COPY rsyslog.conf /etc/rsyslog.conf
 COPY rsyslog.conf.d/*.conf /etc/rsyslog.conf.d/
 
 VOLUME [ "/config" "/work" "/log" ]
+EXPOSE 80 514 1601
 
 WORKDIR /home/rsyslog
 
