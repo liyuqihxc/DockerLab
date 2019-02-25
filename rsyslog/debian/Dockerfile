@@ -8,11 +8,11 @@ FROM debian:9
 ARG LOGANALYZER_VERSION="4.1.7"
 ARG RSYSLOG_VERSION="8.24.0"
 
-ARG RUNTIME_DEPS="apache2 php php-mysql php-gd \
+ARG RUNTIME_DEPS="apache2 php php-mysql php-gd expect \
   rsyslog \
   rsyslog-mysql \
   rsyslog-elasticsearch"
-ARG BUILD_DEPS="wget expect"
+ARG BUILD_DEPS="wget"
 
 RUN mv /etc/apt/sources.list /etc/apt/sources.list.bak \
   && echo "deb http://mirrors.163.com/debian/ stretch main non-free contrib"                       >> /etc/apt/sources.list \
