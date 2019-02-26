@@ -45,9 +45,10 @@ RUN apt-get update -y && apt-get update \
   && service rsyslog restart \
   && service apache2 restart \
   && apt-get remove --purge -y ${BUILD_DEPS} \
+  && apt-get clean \
   && printf "\
   set timeout -1\n \
-  spawn apt-get autoclean && apt-get clean && apt-get autoremove \n \
+  spawn apt-get autoremove \n \
   expect {\n \
     \"Do you want to continue? \\\\\\\\\[yes/no\\\\\\\\\]\" { send \"yes\\\n\" } \n \
   }\n \
