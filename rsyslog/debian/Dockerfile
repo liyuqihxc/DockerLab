@@ -45,15 +45,7 @@ RUN apt-get update -y && apt-get update \
   && service rsyslog restart \
   && service apache2 restart \
   && apt-get remove --purge -y ${BUILD_DEPS} \
-  && apt-get clean \
-  && printf "\
-  set timeout -1\n \
-  spawn apt-get autoremove \n \
-  expect {\n \
-    \"Do you want to continue? \\\\\\\\\[Y/n\\\\\\\\\]\" { send \"Y\\\n\" } \n \
-  }\n \
-  expect eof\n \
-  " | expect \
+  && apt-get clean && apt-get autoremove \n \
   && apt-get remove --purge -y expect \
   && rm -rf /var/lib/apt/lists/*
 
