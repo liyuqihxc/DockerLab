@@ -50,7 +50,7 @@ RUN apt-get update -y && apt-get update \
   set timeout -1\n \
   spawn apt-get autoremove \n \
   expect {\n \
-    \"Do you want to continue? \\\\\\\\\[yes/no\\\\\\\\\]\" { send \"yes\\\n\" } \n \
+    \"Do you want to continue? \\\\\\\\\[Y/n\\\\\\\\\]\" { send \"Y\\\n\" } \n \
   }\n \
   expect eof\n \
   " | expect \
