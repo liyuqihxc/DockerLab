@@ -26,7 +26,7 @@ RUN mv /etc/apt/sources.list /etc/apt/sources.list.bak \
 
 RUN apt-get update -y && apt-get update \
   && apt-get install -y ${BUILD_DEPS} expect \
-  && wget -O- "http://192.168.100.70:8080/loganalyzer-${LOGANALYZER_VERSION}.tar.gz" | tar xz \
+  && wget -O- "http://download.adiscon.com/loganalyzer/loganalyzer-${LOGANALYZER_VERSION}.tar.gz" | tar xz \
   && mkdir -p /var/www/html/loganalyzer \
   && cp -a loganalyzer-${LOGANALYZER_VERSION}/src /var/www/html/loganalyzer \
   && rm -rf /loganalyzer-${LOGANALYZER_VERSION} \
