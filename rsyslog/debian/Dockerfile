@@ -45,7 +45,7 @@ RUN apt-get update -y && apt-get update \
   && service rsyslog restart \
   && service apache2 restart \
   && apt-get remove --purge -y ${BUILD_DEPS} \
-  && apt-get clean && apt-get autoremove \n \
+  && apt-get clean && apt-get autoremove \
   && apt-get remove --purge -y expect \
   && rm -rf /var/lib/apt/lists/*
 
