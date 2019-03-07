@@ -1,7 +1,6 @@
 FROM microsoft/dotnet:2.2-sdk as builder
 
 ARG BAGET_VERSION="0.1.54-prerelease"
-ARG NVM_VERSION="0.34.0"
 
 RUN mv /etc/apt/sources.list /etc/apt/sources.list.bak \
     && echo "deb http://mirrors.163.com/debian/ stretch main non-free contrib"                       >> /etc/apt/sources.list \
