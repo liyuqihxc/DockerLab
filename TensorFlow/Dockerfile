@@ -32,9 +32,9 @@ ARG KVAZAAR_VERSION=1.2.0
 # -static-libgcc is needed to make gcc not include gcc_s as "as-needed" shared library which
 # cmake will include as a implicit library.
 # other options to get hardened build (same as ffmpeg hardened)
-# ENV CFLAGS="-O3 -shared-libgcc -fno-strict-overflow -fstack-protector-all"
-# ENV CXXFLAGS="-O3 -shared-libgcc -fno-strict-overflow -fstack-protector-all"
-# ENV LDFLAGS="-Wl,-z,relro -fPIE -pie"
+ARG CFLAGS="-O3 -shared-libgcc -fno-strict-overflow -fstack-protector-all"
+ARG CXXFLAGS="-O3 -shared-libgcc -fno-strict-overflow -fstack-protector-all"
+# ARG LDFLAGS="-Wl,-z,relro -fPIE -pie"
 
 
 ENV FFMPEG_PATH='/usr/bin/ffmpeg'
@@ -58,103 +58,104 @@ RUN set -x \
     && apt-get update && apt-get upgrade -y \
     && apt-get install -y ${BUILD_DEPS} \
     \
-    && wget -q -O - "https://sourceforge.net/projects/lame/files/lame/${MP3LAME_VERSION}/lame-${MP3LAME_VERSION}.tar.gz/download" | tar xz \
+    && wget -q -O - "https://sourceforge.net/projects/lame/files/lame/${MP3LAME_VERSION}/lame-${MP3LAME_VERSION}.tar.gz/download" | tar xz -C / \
     && cd /lame-${MP3LAME_VERSION} \
     && ./configure --enable-shared --disable-static \
     && make -j$(cat /build_concurrency) install \
     && rm -rf /lame-${MP3LAME_VERSION} \
     \
-    && wget -q -O - "https://github.com/mstorsjo/fdk-aac/archive/v${FDK_AAC_VERSION}.tar.gz" | tar xz \
+    && wget -q -O - "https://github.com/mstorsjo/fdk-aac/archive/v${FDK_AAC_VERSION}.tar.gz" | tar xz -C / \
     && cd /fdk-aac-${FDK_AAC_VERSION} \
     && ./autogen.sh && ./configure --enable-shared --disable-static \
     && make -j$(cat /build_concurrency) install \
     && rm -rf /fdk-aac-${FDK_AAC_VERSION} \
     \
-    && wget -q -O - "http://downloads.xiph.org/releases/ogg/libogg-${OGG_VERSION}.tar.gz" | tar xz \
+    && wget -q -O - "http://downloads.xiph.org/releases/ogg/libogg-${OGG_VERSION}.tar.gz" | tar xz -C / \
     && cd /libogg-${OGG_VERSION} \
     && ./configure --enable-shared --disable-static \
     && make -j$(cat /build_concurrency) install \
     && rm -rf /libogg-${OGG_VERSION} \
     \
-    && wget -q -O - "https://downloads.xiph.org/releases/vorbis/libvorbis-${VORBIS_VERSION}.tar.gz" | tar xz \
+    && wget -q -O - "https://downloads.xiph.org/releases/vorbis/libvorbis-${VORBIS_VERSION}.tar.gz" | tar xz -C / \
     && cd /libvorbis-${VORBIS_VERSION} \
     && ./configure --enable-shared --disable-static \
     && make -j$(cat /build_concurrency) install \
     && rm -rf /libvorbis-${VORBIS_VERSION} \
     \
-    && wget -q -O - "https://archive.mozilla.org/pub/opus/opus-${OPUS_VERSION}.tar.gz" | tar xz \
+    && wget -q -O - "https://archive.mozilla.org/pub/opus/opus-${OPUS_VERSION}.tar.gz" | tar xz -C / \
     && cd /opus-${OPUS_VERSION} \
     && ./configure --enable-shared --disable-static \
     && make -j$(cat /build_concurrency) install \
     && rm -rf /opus-${OPUS_VERSION} \
     \
-    && wget -q -O - "https://downloads.xiph.org/releases/theora/libtheora-${THEORA_VERSION}.tar.bz2" | tar xj \
+    && wget -q -O - "https://downloads.xiph.org/releases/theora/libtheora-${THEORA_VERSION}.tar.bz2" | tar xj -C / \
     && cd /libtheora-${THEORA_VERSION} \
     && ./configure --enable-shared --disable-static \
     && make -j$(cat /build_concurrency) install \
     && rm -rf /libtheora-${THEORA_VERSION} \
     \
-    && wget -q -O - "https://github.com/webmproject/libvpx/archive/v${VPX_VERSION}.tar.gz" | tar xz \
+    && wget -q -O - "https://github.com/webmproject/libvpx/archive/v${VPX_VERSION}.tar.gz" | tar xz -C / \
     && cd /libvpx-${VPX_VERSION} \
     && ./configure --disable-unit-tests --enable-shared --disable-static \
     && make -j$(cat /build_concurrency) install \
     && rm -rf /libvpx-${VPX_VERSION} \
     \
-    && wget -q -O - "https://www.nasm.us/pub/nasm/releasebuilds/${NASM_VERSION}/nasm-${NASM_VERSION}.tar.gz" | tar xz \
+    && wget -q -O - "https://www.nasm.us/pub/nasm/releasebuilds/${NASM_VERSION}/nasm-${NASM_VERSION}.tar.gz" | tar xz -C / \
     && cd /nasm-${NASM_VERSION} \
     && ./configure && make -j$(cat /build_concurrency) install \
     \
     && cd / \
-    && git clone https://code.videolan.org/videolan/x264.git \
+    && git clone "https://code.videolan.org/videolan/x264.git" \
     && cd /x264 \
     && git checkout ${X264_VERSION} \
     && ./configure --enable-pic --enable-shared --disable-static \
     && make -j$(cat /build_concurrency) install \
     && rm -rf /x264 \
     \
-    && wget -q -O - "http://ftp.videolan.org/pub/videolan/x265/x265_${X265_VERSION}.tar.gz" | tar xz \
+    && wget -q -O - "http://ftp.videolan.org/pub/videolan/x265/x265_${X265_VERSION}.tar.gz" | tar xz -C / \
     && cd /x265_${X265_VERSION}/build/linux \
     && cmake -G "Unix Makefiles" -DENABLE_SHARED=ON -DENABLE_AGGRESSIVE_CHECKS=ON ../../source \
     && make -j$(cat /build_concurrency) install \
     && rm -rf /x265_${X265_VERSION} \
     \
-    && wget -q -O - "https://github.com/webmproject/libwebp/archive/v${WEBP_VERSION}.tar.gz" | tar xz \
+    && wget -q -O - "https://github.com/webmproject/libwebp/archive/v${WEBP_VERSION}.tar.gz" | tar xz -C / \
     && cd /libwebp-${WEBP_VERSION} \
     && ./autogen.sh && ./configure --enable-shared --disable-static \
     && make -j$(cat /build_concurrency) install \
     && rm -rf /libwebp-${WEBP_VERSION} \
     \
-    && wget -q -O - "https://github.com/dbry/WavPack/archive/${WAVPACK_VERSION}.tar.gz" | tar xz \
+    && wget -q -O - "https://github.com/dbry/WavPack/archive/${WAVPACK_VERSION}.tar.gz" | tar xz -C / \
     && cd /WavPack-${WAVPACK_VERSION} \
     && ./autogen.sh && ./configure --enable-shared --disable-static \
     && make -j$(cat /build_concurrency) install \
     && rm -rf /WavPack-${WAVPACK_VERSION} \
     \
-    && wget -q -O - "https://github.com/xiph/speex/archive/Speex-${SPEEX_VERSION}.tar.gz" | tar xz \
+    && wget -q -O - "https://github.com/xiph/speex/archive/Speex-${SPEEX_VERSION}.tar.gz" | tar xz -C / \
     && cd /speex-Speex-${SPEEX_VERSION} \
     && ./autogen.sh && ./configure --enable-shared --disable-static \
     && make -j$(cat /build_concurrency) install \
     && rm -rf /speex-Speex-${SPEEX_VERSION} \
     \
+    && cd / \
     && git clone --branch v${AOM_VERSION} --depth 1 "https://github.com/liyuqihxc/aom.git" \
     && mkdir /aom/build_tmp && cd /aom/build_tmp \
     && cmake -DBUILD_SHARED_LIBS=1 -DENABLE_TESTS=0 .. \
     && make -j$(cat /build_concurrency) install \
     && rm -rf /aom \
     \
-    && wget -q -O - "https://github.com/georgmartius/vid.stab/archive/v${VIDSTAB_VERSION}.tar.gz" | tar xz \
+    && wget -q -O - "https://github.com/georgmartius/vid.stab/archive/v${VIDSTAB_VERSION}.tar.gz" | tar xz -C / \
     && cd /vid.stab-${VIDSTAB_VERSION} \
     && cmake -DBUILD_SHARED_LIBS=ON . \
     && make -j$(cat /build_concurrency) install \
     && rm -rf /vid.stab-${VIDSTAB_VERSION} \
     \
-    && wget -q -O - "https://github.com/ultravideo/kvazaar/archive/v${KVAZAAR_VERSION}.tar.gz" | tar xz \
+    && wget -q -O - "https://github.com/ultravideo/kvazaar/archive/v${KVAZAAR_VERSION}.tar.gz" | tar xz -C / \
     && cd kvazaar-${KVAZAAR_VERSION} \
     && ./autogen.sh && ./configure --enable-shared --disable-static \
     && make -j$(cat /build_concurrency) install \
     && rm -rf /kvazaar-${KVAZAAR_VERSION} \
     \
-    && wget -q -O - "http://ffmpeg.org/releases/ffmpeg-${FFMPEG_VERSION}.tar.gz" | tar xz \
+    && wget -q -O - "http://ffmpeg.org/releases/ffmpeg-${FFMPEG_VERSION}.tar.gz" | tar xz -C / \
     && cd /ffmpeg-${FFMPEG_VERSION} \
     && ./configure \
         --pkg-config-flags="--static" \
@@ -186,7 +187,7 @@ RUN set -x \
     && make -j$(cat /build_concurrency) install \
     && rm -rf /ffmpeg-${FFMPEG_VERSION} \
     \
-    && wget -q -O - http://dlib.net/files/dlib-${DLIB_VERSION}.tar.bz2 | tar xj \
+    && wget -q -O - http://dlib.net/files/dlib-${DLIB_VERSION}.tar.bz2 | tar xj -C / \
     && cd /dlib-${DLIB_VERSION}/examples \
     && mkdir build \
     && cd build \
@@ -197,9 +198,9 @@ RUN set -x \
     && pip3 install setuptools \
     && python3 setup.py install \
     \
-    && wget -q https://github.com/opencv/opencv/archive/${OPENCV_VERSION}.zip -O /opencv-${OPENCV_VERSION}.zip \
+    && wget -q "https://github.com/opencv/opencv/archive/${OPENCV_VERSION}.zip" -O /opencv-${OPENCV_VERSION}.zip \
     && unzip -q /opencv-${OPENCV_VERSION}.zip && rm -rf /opencv-${OPENCV_VERSION}.zip \
-    && wget -q https://github.com/opencv/opencv_contrib/archive/${OPENCV_VERSION}.zip -O /opencv_contrib-${OPENCV_VERSION}.zip \
+    && wget -q "https://github.com/opencv/opencv_contrib/archive/${OPENCV_VERSION}.zip" -O /opencv_contrib-${OPENCV_VERSION}.zip \
     && unzip -q /opencv_contrib-${OPENCV_VERSION}.zip -d /opencv-${OPENCV_VERSION} && rm -rf /opencv_contrib-${OPENCV_VERSION}.zip \
     && mkdir /opencv-${OPENCV_VERSION}/build \
     && cd /opencv-${OPENCV_VERSION}/build \
@@ -255,9 +256,11 @@ RUN set -x \
     && echo "/usr/local/lib" >> /etc/ld.so.conf.d/opencv.conf \
     && ldconfig \
     && rm -rf /opencv-${OPENCV_VERSION} \
+    \
     && cd /nasm-${NASM_VERSION} \
     && make uninstall \
     && rm -rf /nasm-${NASM_VERSION} \
+    \
     && apt-get purge ${BUILD_DEPS}\
     && apt-get install -y ${RUNTIME_DEPS} \
     && apt-get autoremove \
@@ -265,24 +268,24 @@ RUN set -x \
 
 RUN echo \
     "{" \
-    "\"ffmpeg\": \"$FFMPEG_VERSION\"," \
-    "\"libmp3lame\": \"$MP3LAME_VERSION\"," \
-    "\"libfdk-aac\": \"$FDK_AAC_VERSION\"," \
-    "\"libogg\": \"$OGG_VERSION\"," \
-    "\"libvorbis\": \"$VORBIS_VERSION\"," \
-    "\"libopus\": \"$OPUS_VERSION\"," \
-    "\"libtheora\": \"$THEORA_VERSION\"," \
-    "\"libvpx\": \"$VPX_VERSION\"," \
-    "\"libx264\": \"$X264_VERSION\"," \
-    "\"libx265\": \"$X265_VERSION\"," \
-    "\"libwebp\": \"$WEBP_VERSION\"," \
-    "\"libwavpack\": \"$WAVPACK_VERSION\"," \
-    "\"libspeex\": \"$SPEEX_VERSION\"," \
-    "\"libaom\": \"$AOM_VERSION\"," \
-    "\"libvidstab\": \"$VIDSTAB_VERSION\"," \
-    "\"libkvazaar\": \"$KVAZAAR_VERSION\"," \
-    "\"opencv\": \"$OPENCV_VERSION\"," \
-    "\"dlib\": \"$DLIB_VERSION\"" \
+    "\"ffmpeg\": \"${FFMPEG_VERSION}\"," \
+    "\"libmp3lame\": \"${MP3LAME_VERSION}\"," \
+    "\"libfdk-aac\": \"${FDK_AAC_VERSION}\"," \
+    "\"libogg\": \"${OGG_VERSION}\"," \
+    "\"libvorbis\": \"${VORBIS_VERSION}\"," \
+    "\"libopus\": \"${OPUS_VERSION}\"," \
+    "\"libtheora\": \"${THEORA_VERSION}\"," \
+    "\"libvpx\": \"${VPX_VERSION}\"," \
+    "\"libx264\": \"${X264_VERSION}\"," \
+    "\"libx265\": \"${X265_VERSION}\"," \
+    "\"libwebp\": \"${WEBP_VERSION}\"," \
+    "\"libwavpack\": \"${WAVPACK_VERSION}\"," \
+    "\"libspeex\": \"${SPEEX_VERSION}\"," \
+    "\"libaom\": \"${AOM_VERSION}\"," \
+    "\"libvidstab\": \"${VIDSTAB_VERSION}\"," \
+    "\"libkvazaar\": \"${KVAZAAR_VERSION}\"," \
+    "\"opencv\": \"${OPENCV_VERSION}\"," \
+    "\"dlib\": \"${DLIB_VERSION}\"" \
     "}" \
     | jq . > /versions.json
 
