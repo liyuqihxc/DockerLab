@@ -15,6 +15,8 @@ FROM alpine:3.11
 
 WORKDIR /frpc
 
+EXPOSE 26600-26610
+
 COPY --from=builder /frp/bin/frpc ./
 
 VOLUME ["/frpc/frpc.ini"]

@@ -15,6 +15,8 @@ FROM alpine:3.11
 
 WORKDIR /frps
 
+EXPOSE 26600-26610
+
 COPY --from=builder /frp/bin/frps ./
 
 VOLUME ["/frps/frps.ini"]
