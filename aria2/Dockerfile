@@ -3,7 +3,7 @@ FROM alpine:3.11
 ARG ARIA2_VERSION=1.35.0-r0
 ARG NG_VERSION=1.1.4
 
-ADD entrypoint.sh on-complete.sh aria2.conf /aria2/
+ADD entrypoint.sh aria2.conf /aria2/
 
 RUN set -x \
     && sed -i 's/http:\/\/dl-cdn.alpinelinux.org/https:\/\/mirrors.ustc.edu.cn/g' /etc/apk/repositories \
@@ -18,9 +18,10 @@ RUN set -x \
 
 WORKDIR /aria2
 
-RUN chmod +x entrypoint.sh on-complete.sh
+RUN chmod +x entrypoint.sh
 
 VOLUME [ "downloads/" ]
+VOLUME [ "on-complete.sh" ]
 
 EXPOSE 6800 6801
 
