@@ -1,6 +1,18 @@
-FROM alpine:3.8
+FROM golang:alpine as builder
 
-ARG SS_VERSION=3.2.3
+ARG V2RAY_VERSION=1.3.0
+
+RUN mkdir /v2ray \
+    && cd /v2ray \
+    && git clone https://github.com/shadowsocks/v2ray-plugin.git . \
+    && git checkout tags/v${V2RAY_VERSION} \
+    && go build \
+    && curl https://get.acme.sh | sh \
+    && ls -la
+
+FROM nginx:stable-alpine
+
+ARG SS_VERSION=3.3.4
 
 ENV SERVER_ADDR=0.0.0.0
 ENV SERVER_ADDR_IPV6=::0
@@ -10,7 +22,7 @@ ENV METHOD=aes-256-gcm
 ENV TIMEOUT=60
 ENV DNS_ADDRS=8.8.8.8,8.8.4.4
 
-RUN ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+COPY --from=builder /v2ray/v2ray-plugin /usr/bin/v2ray-plugin
 
 RUN \
     set -ex \
