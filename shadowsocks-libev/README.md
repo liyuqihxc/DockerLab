@@ -11,7 +11,7 @@ echo PASSWORD=<server-password> >> .envfile
 
 echo METHOD=<server-encrypt-method> >> .envfile
 
-docker run -d -p <server-port>:18650/tcp -p <server-port>:18650/udp --env-file ./.envfile liyuqihxc/shadowsocks-libev
+docker run -d --rm -p <server-port>:18650/tcp -p <server-port>:18650/udp --env-file ./.envfile liyuqihxc/shadowsocks-libev
 ```
 
 #### Build
