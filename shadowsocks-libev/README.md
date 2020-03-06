@@ -7,11 +7,7 @@
 ```
 docker pull liyuqihxc/shadowsocks-libev
 
-echo PASSWORD=<server-password> >> .envfile
-
-echo METHOD=<server-encrypt-method> >> .envfile
-
-docker run -d --rm -p <server-port>:18650/tcp -p <server-port>:18650/udp --env-file ./.envfile liyuqihxc/shadowsocks-libev
+docker run -d --rm -p 443:443/tcp -v $(pwd):/etc/nginx/certs liyuqihxc/shadowsocks-libev:3.3.4-v2ray -d mydomain.com -p password
 ```
 
 #### Build

@@ -56,11 +56,11 @@ RUN \
     | sort -u) \
     && rm -rf /tmp/* /var/cache/apk/*
 
-VOLUME [ "/etc/nginx" ]
+VOLUME [ "/etc/nginx/certs" ]
 
 EXPOSE 443
 
-COPY nginx.conf /etc/nginx/
+COPY v2ray.conf /etc/nginx/conf.d
 COPY entrypoint.sh /
 
 RUN chmod +x /entrypoint.sh

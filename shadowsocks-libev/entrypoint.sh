@@ -6,7 +6,7 @@ show_help() {
   echo "  docker run -it liyuqihxc/shadowsocks-libev[:tag] [options]"
   echo ""
   echo "Options:"
-  echo "  -d         域名"
+  echo "  -s         域名"
   echo "  -p         密码"
   echo "  -m         加密算法"
   echo "  -t         超时间隔"
@@ -49,15 +49,14 @@ shift $(($OPTIND - 1))
 
 echo "{
   \"server\": \"127.0.0.1\",
-  \"server_port\": \"18650\",
+  \"server_port\": 18650,
   \"password\": \"${PASSWORD}\",
   \"timeout\": \"${TIMEOUT}\",
   \"method\": \"${METHOD}\",
-  \"fast_open\": true,
   \"plugin\": \"v2ray-plugin\",
   \"plugin_opts\": \"server;path=/v2ray;loglevel=none\"
 }" > /etc/shadowsocks-libev/config.json
 
-sed -i 's@%SERVER_NAME%@'"${SERVER_NAME}"'@' /etc/nginx/nginx.conf
-
-ss-server -c /etc/shadowsocks-libev/config.json -u -d ${DNS_ADDRS}
+sed -i 's@%SERVER_NAME%@'"${SERVER_NAME}"'@' /etc/nginx/conf.d/v2ray.conf
+nginx
+ss-server -c /etc/shadowsocks-libev/config.json -d ${DNS_ADDRS}
