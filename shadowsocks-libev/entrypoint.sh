@@ -6,57 +6,111 @@ show_help() {
   echo "  docker run -it liyuqihxc/shadowsocks-libev[:tag] [options]"
   echo ""
   echo "Options:"
-  echo "  -s         域名"
-  echo "  -p         密码"
-  echo "  -m         加密算法"
-  echo "  -t         超时间隔"
-  echo "  -a         DNS地址"
-  echo "  -h         显示帮助信息并退出"
+  echo "  -s, --server           作为Server端启动"
+  echo "  -c, --client           作为Client端启动"
+  echo "  -x, --mux              并发连接数，仅在Client端可用"
+  echo "  -d, --server-name      域名"
+  echo "  -p, --password         密码"
+  echo "  -m, --method           加密算法"
+  echo "  -t, --timeout          超时间隔"
+  echo "  -a, --dns-address      DNS地址，仅在Server端可用"
+  echo "  -h, --help             显示帮助信息并退出"
   echo ""
   echo "Example:"
-  echo "  docker run -it liyuqihxc/shadowsocks-libev[:tag] -s mydomain.com"
+  echo "  作为Server端启动:"
+  echo "    docker run [docker_opts] liyuqihxc/shadowsocks-libev[:tag] -s -d mydomain.com -p password"
+  echo "  作为Client端启动:"
+  echo "    docker run [docker_opts] liyuqihxc/shadowsocks-libev[:tag] -c -d mydomain.com -p password -x 5"
   echo ""
   exit 0
 }
 
+RUNAS_SERVER=false
+RUNAS_CLIENT=false
+MUX=1
 TIMEOUT="60"
 METHOD="aes-256-gcm"
 DNS_ADDRS="8.8.8.8,8.8.4.4"
 
-while getopts 's:p:t:m:a:' OPT; do
-  case $OPT in
-    s)
-      SERVER_NAME="$OPTARG";;
-    p)
-      PASSWORD="$OPTARG";;
-    t)
-      TIMEOUT="$OPTARG";;
-    m)
-      METHOD="$OPTARG";;
-    a)
-      DNS_ADDRS="$OPTARG";;
-    h)
-      show_help;;
-    ?)
+ARGS=`getopt -a -o scx::d:p:m::t::a::h -l server,client,mux::,server_name:,password:,method::,timeout::,dns-address::,help -- "$@"`
+[ $? -ne 0 ] && show_help
+eval set -- "${ARGS}"
+while true
+do
+  case "$1" in
+    -s|--server)
+      RUNAS_SERVER=true
+      shift
+      ;;
+    -c|--client)
+      RUNAS_CLIENT=true
+      shift
+      ;;
+    -x|--mux)
+      MUX="$2"
+      shift
+      ;;
+    -d|--server-name)
+      SERVER_NAME="$2"
+      shift
+      ;;
+    -p|--password)
+      PASSWORD="$2"
+      shift
+      ;;
+    -m|--method)
+      METHOD="$2"
+      shift
+      ;;
+    -t|--timeout)
+      TIMEOUT="$2"
+      shift
+      ;;
+    -a|--dns_address)
+      DNS_ADDRS="$2"
+      shift
+      ;;
+    -h|--help)
       show_help
-  esac
+      ;;
+    --)
+      shift
+      break
+      ;;
+    esac
+
+  shift
 done
-  
-shift $(($OPTIND - 1))
 
-[ -z $SERVER_NAME ] && echo "初始化必须设置域名。" && show_help
-[ -z $PASSWORD ] && echo "初始化必须设置密码。" && show_help
+[ "$RUNAS_SERVER"=false -a "$RUNAS_CLIENT"=false ] && "必须指定启动方式。" && show_help
+[ -z "$SERVER_NAME" ] && echo "初始化必须设置域名。" && show_help
+[ -z "$PASSWORD" ] && echo "初始化必须设置密码。" && show_help
 
-echo "{
-  \"server\": \"127.0.0.1\",
-  \"server_port\": 18650,
-  \"password\": \"${PASSWORD}\",
-  \"timeout\": \"${TIMEOUT}\",
-  \"method\": \"${METHOD}\",
-  \"plugin\": \"v2ray-plugin\",
-  \"plugin_opts\": \"server;path=/v2ray;loglevel=none\"
-}" > /etc/shadowsocks-libev/config.json
+if [ "$RUNAS_SERVER"=true ]; then
+  echo "{
+    \"server\": \"127.0.0.1\",
+    \"server_port\": 18650,
+    \"password\": \"${PASSWORD}\",
+    \"timeout\": \"${TIMEOUT}\",
+    \"method\": \"${METHOD}\",
+    \"plugin\": \"v2ray-plugin\",
+    \"plugin_opts\": \"server;path=/v2ray;loglevel=none\"
+  }" > /etc/shadowsocks-libev/config.json
 
-sed -i 's@%SERVER_NAME%@'"${SERVER_NAME}"'@' /etc/nginx/conf.d/v2ray.conf
-nginx
-ss-server -c /etc/shadowsocks-libev/config.json -d ${DNS_ADDRS}
+  sed -i 's@%SERVER_NAME%@'"${SERVER_NAME}"'@' /etc/nginx/conf.d/v2ray.conf
+  nginx
+  ss-server -c /etc/shadowsocks-libev/config.json -d ${DNS_ADDRS}
+elif [ "$RUNAS_CLIENT"=true ]; then
+  echo "{
+    \"server\": \"$SERVER_NAME\",
+    \"server_port\": 443,
+    \"local_port\": 18650,
+    \"password\": \"${PASSWORD}\",
+    \"timeout\": \"${TIMEOUT}\",
+    \"method\": \"${METHOD}\",
+    \"plugin\": \"v2ray-plugin\",
+    \"plugin_opts\": \"mux=$MUX;host=$SERVER_NAME;tls;path=/v2ray;loglevel=none\"
+  }" > /etc/shadowsocks-libev/config.json
+
+  ss-local -c /etc/shadowsocks-libev/config.json
+fi
