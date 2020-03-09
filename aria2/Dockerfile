@@ -21,6 +21,7 @@ WORKDIR /aria2
 RUN chmod +x entrypoint.sh
 
 VOLUME [ "downloads/" ]
+VOLUME [ "data/" ]
 VOLUME [ "on-complete.sh" ]
 
 EXPOSE 6800 6801

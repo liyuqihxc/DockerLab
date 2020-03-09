@@ -1,6 +1,6 @@
 #!/bin/env sh
 
-touch /aria2/aria2.session
+touch /aria2/data/aria2.session
 darkhttpd /aria2/AriaNg --port 6801 &
 
 while true; do

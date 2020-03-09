@@ -58,7 +58,7 @@ RUN \
 
 VOLUME [ "/etc/nginx/certs" ]
 
-EXPOSE 443
+EXPOSE 443 18650
 
 COPY v2ray.conf /etc/nginx/conf.d
 COPY entrypoint.sh /

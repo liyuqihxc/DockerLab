@@ -27,7 +27,7 @@ show_help() {
 
 RUNAS_SERVER=false
 RUNAS_CLIENT=false
-MUX=1
+MUX=3
 TIMEOUT="60"
 METHOD="aes-256-gcm"
 DNS_ADDRS="8.8.8.8,8.8.4.4"
