@@ -3,7 +3,7 @@
 show_help() {
   echo ""
   echo "Usage:"
-  echo "  docker run -it liyuqihxc/shadowsocks-libev[:tag] [options]"
+  echo "  docker run [docker_opts] liyuqihxc/shadowsocks-libev[:tag] [options]"
   echo ""
   echo "Options:"
   echo "  -s, --server           作为Server端启动"
@@ -28,11 +28,11 @@ show_help() {
 RUNAS_SERVER=false
 RUNAS_CLIENT=false
 MUX=3
-TIMEOUT="60"
+TIMEOUT=300
 METHOD="aes-256-gcm"
 DNS_ADDRS="8.8.8.8,8.8.4.4"
 
-ARGS=`getopt -a -o scx::d:p:m::t::a::h -l server,client,mux::,server_name:,password:,method::,timeout::,dns-address::,help -- "$@"`
+ARGS=`getopt -a -o scx::d:p:m::t::a::h -l server,client,mux::,server-name:,password:,method::,timeout::,dns-address::,help -- "$@"`
 [ $? -ne 0 ] && show_help
 eval set -- "${ARGS}"
 while true
@@ -40,11 +40,9 @@ do
   case "$1" in
     -s|--server)
       RUNAS_SERVER=true
-      shift
       ;;
     -c|--client)
       RUNAS_CLIENT=true
-      shift
       ;;
     -x|--mux)
       MUX="$2"
@@ -82,16 +80,16 @@ do
   shift
 done
 
-[ "$RUNAS_SERVER"=false -a "$RUNAS_CLIENT"=false ] && "必须指定启动方式。" && show_help
+[ "$RUNAS_SERVER" = false -a "$RUNAS_CLIENT" = false ] && echo "必须指定启动方式。" && show_help
 [ -z "$SERVER_NAME" ] && echo "初始化必须设置域名。" && show_help
 [ -z "$PASSWORD" ] && echo "初始化必须设置密码。" && show_help
 
-if [ "$RUNAS_SERVER"=true ]; then
+if [ "$RUNAS_SERVER" = true ]; then
   echo "{
     \"server\": \"127.0.0.1\",
     \"server_port\": 18650,
     \"password\": \"${PASSWORD}\",
-    \"timeout\": \"${TIMEOUT}\",
+    \"timeout\": ${TIMEOUT},
     \"method\": \"${METHOD}\",
     \"plugin\": \"v2ray-plugin\",
     \"plugin_opts\": \"server;path=/v2ray;loglevel=none\"
@@ -100,16 +98,17 @@ if [ "$RUNAS_SERVER"=true ]; then
   sed -i 's@%SERVER_NAME%@'"${SERVER_NAME}"'@' /etc/nginx/conf.d/v2ray.conf
   nginx
   ss-server -c /etc/shadowsocks-libev/config.json -d ${DNS_ADDRS}
-elif [ "$RUNAS_CLIENT"=true ]; then
+elif [ "$RUNAS_CLIENT" = true ]; then
   echo "{
     \"server\": \"$SERVER_NAME\",
     \"server_port\": 443,
+    \"local_address\": \"0.0.0.0\",
     \"local_port\": 18650,
     \"password\": \"${PASSWORD}\",
     \"timeout\": \"${TIMEOUT}\",
     \"method\": \"${METHOD}\",
     \"plugin\": \"v2ray-plugin\",
-    \"plugin_opts\": \"mux=$MUX;host=$SERVER_NAME;tls;path=/v2ray;loglevel=none\"
+    \"plugin_opts\": \"tls;host=$SERVER_NAME;path=/v2ray;mux=$MUX;loglevel=none\"
   }" > /etc/shadowsocks-libev/config.json
 
   ss-local -c /etc/shadowsocks-libev/config.json
