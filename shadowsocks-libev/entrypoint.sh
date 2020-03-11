@@ -8,6 +8,7 @@ show_help() {
   echo "Options:"
   echo "  -s, --server           作为Server端启动"
   echo "  -c, --client           作为Client端启动"
+  echo "  -e, --update-cert      Client端CA证书文件名，目录固定为/etc/nginx/certs"
   echo "  -x, --mux              并发连接数，仅在Client端可用"
   echo "  -d, --server-name      域名"
   echo "  -p, --password         密码"
@@ -32,7 +33,7 @@ TIMEOUT=300
 METHOD="aes-256-gcm"
 DNS_ADDRS="8.8.8.8,8.8.4.4"
 
-ARGS=`getopt -a -o scx::d:p:m::t::a::h -l server,client,mux::,server-name:,password:,method::,timeout::,dns-address::,help -- "$@"`
+ARGS=`getopt -a -o sce:x:d:p:m:t:a:h -l server,client,update-cert:,mux:,server-name:,password:,method:,timeout:,dns-address:,help -- "$@"`
 [ $? -ne 0 ] && show_help
 eval set -- "${ARGS}"
 while true
@@ -43,6 +44,10 @@ do
       ;;
     -c|--client)
       RUNAS_CLIENT=true
+      ;;
+    -e|--update-cert)
+      CA_CERT_NAME="$2"
+      shift
       ;;
     -x|--mux)
       MUX="$2"
@@ -111,5 +116,10 @@ elif [ "$RUNAS_CLIENT" = true ]; then
     \"plugin_opts\": \"tls;host=$SERVER_NAME;path=/v2ray;mux=$MUX;loglevel=none\"
   }" > /etc/shadowsocks-libev/config.json
 
+  if [ -n "$CA_CERT_NAME" ];then
+    cp "/etc/nginx/certs/$CA_CERT_NAME" /usr/local/share/ca-certificates/
+    [ $? -ne 0 ] && echo "无法更新指定的CA证书。" && exit 1
+    update-ca-certificates
+  fi
   ss-local -c /etc/shadowsocks-libev/config.json
 fi

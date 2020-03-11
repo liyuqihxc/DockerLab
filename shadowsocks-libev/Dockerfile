@@ -50,7 +50,7 @@ RUN \
     && rm -rf /build_concurrency \
     # Runtime dependencies setup
     && apk add --no-cache \
-    rng-tools \
+    rng-tools ca-certificates \
     $(scanelf --needed --nobanner /usr/bin/ss-* \
     | awk '{ gsub(/,/, "\nso:", $2); print "so:" $2 }' \
     | sort -u) \
