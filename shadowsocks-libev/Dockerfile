@@ -16,6 +16,8 @@ RUN cd /v2ray \
 FROM nginx:stable-alpine
 
 ARG SS_VERSION=3.3.4
+ARG SOCKS5_PORT=18650
+ARG HTTP_PORT=8118
 
 COPY --from=builder /v2ray/v2ray-plugin /usr/bin/v2ray-plugin
 
@@ -50,7 +52,7 @@ RUN \
     && rm -rf /build_concurrency \
     # Runtime dependencies setup
     && apk add --no-cache \
-    rng-tools ca-certificates \
+    rng-tools ca-certificates privoxy \
     $(scanelf --needed --nobanner /usr/bin/ss-* \
     | awk '{ gsub(/,/, "\nso:", $2); print "so:" $2 }' \
     | sort -u) \
@@ -58,11 +60,14 @@ RUN \
 
 VOLUME [ "/etc/nginx/certs" ]
 
-EXPOSE 443 18650
+EXPOSE 443 ${SOCKS5_PORT} ${HTTP_PORT}
 
 COPY v2ray.conf /etc/nginx/conf.d
 COPY entrypoint.sh /
 
-RUN chmod +x /entrypoint.sh
+RUN chmod +x /entrypoint.sh && \
+    sed -i 's/^listen-address/#listen-address/g' /etc/privoxy/config && \
+    echo "listen-address  0.0.0.0:${HTTP_PORT}" >> /etc/privoxy/config && \
+    echo "forward-socks5t  /  127.0.0.1:${SOCKS5_PORT}  ." >> /etc/privoxy/config
 
 ENTRYPOINT [ "/entrypoint.sh" ]

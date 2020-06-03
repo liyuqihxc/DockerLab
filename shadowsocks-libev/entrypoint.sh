@@ -102,7 +102,7 @@ if [ "$RUNAS_SERVER" = true ]; then
 
   sed -i 's@%SERVER_NAME%@'"${SERVER_NAME}"'@' /etc/nginx/conf.d/v2ray.conf
   nginx
-  ss-server -c /etc/shadowsocks-libev/config.json -d ${DNS_ADDRS}
+  exec ss-server -c /etc/shadowsocks-libev/config.json -d ${DNS_ADDRS}
 elif [ "$RUNAS_CLIENT" = true ]; then
   echo "{
     \"server\": \"$SERVER_NAME\",
@@ -121,5 +121,7 @@ elif [ "$RUNAS_CLIENT" = true ]; then
     [ $? -ne 0 ] && echo "无法更新指定的CA证书。" && exit 1
     update-ca-certificates
   fi
-  ss-local -c /etc/shadowsocks-libev/config.json
+
+  privoxy /etc/privoxy/config
+  exec ss-local -c /etc/shadowsocks-libev/config.json
 fi
