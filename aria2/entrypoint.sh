@@ -7,20 +7,22 @@ show_help() {
   echo ""
   echo "Options:"
   echo "  -s, --rpc-secret       RPC授权令牌"
-  echo "  -u, --enable-upnp      启用Upnp端口映射"
+  echo "  -a, --address          Upnp映射地址"
+  echo "  -p, --port             Upnp映射端口"
   echo "  -h, --help             显示帮助信息并退出"
   echo ""
   echo "Example:"
   echo "    docker run [docker_opts] liyuqihxc/aria2[:tag] -s <super secret token>"
-  echo "    docker run [docker_opts] --network host liyuqihxc/aria2[:tag] -s <super secret token> -u 6881-6999"
+  echo "    docker run [docker_opts] --network host liyuqihxc/aria2[:tag] -s <super secret token> -p 6881-6999"
   echo ""
   exit 0
 }
 
 RPC_SECRET=""
+UPNP_ADDRESS=""
 UPNP_PORTS=""
 
-ARGS=`getopt -a -o s:u:h -l rpc-secret:,enable-upnp:,help -- "$@"`
+ARGS=`getopt -a -o s:a:p:h -l rpc-secret:,address:,port:,help -- "$@"`
 [ $? -ne 0 ] && show_help
 eval set -- "${ARGS}"
 while true
@@ -30,7 +32,11 @@ do
       RPC_SECRET="$2"
       shift
       ;;
-    -u|--enable-upnp)
+    -a|--address)
+      UPNP_ADDRESS="$2"
+      shift
+      ;;
+    -p|--port)
       UPNP_PORTS="$2"
       shift
       ;;
@@ -50,6 +56,15 @@ if [ -n "$RPC_SECRET" ];then
   sed -i "s/^rpc-secret.*$/rpc-secret=$RPC_SECRET/g" /aria2/data/aria2.conf
 else
   sed -i "s/^rpc-secret.*$/#rpc-secret=/g" /aria2/data/aria2.conf
+fi
+
+if [[ ( -n "$UPNP_ADDRESS" ) && ( -n "$UPNP_PORTS" ) ]];then
+  echo $UPNP_PORTS | sed -e "s/:/ /" | read start stop
+  for((i=$start;i<=$stop;i++));
+  do
+    upnpc -a $UPNP_ADDRESS $i $i TCP;
+    upnpc -a $UPNP_ADDRESS $i $i UDP;
+  done
 fi
 
 touch /aria2/data/aria2.session
@@ -73,6 +88,7 @@ while true; do
     echo "Failed to update trackers list."
   fi
   [ -n "$PID_ARIA2" ] && kill "$PID_ARIA2"
+  PID_ARIA2=""
   aria2c --conf-path=/aria2/data/aria2.conf --stop-with-process="$PID_HTTPD" &
   PID_ARIA2=$!
   echo "aria2c is running...."
