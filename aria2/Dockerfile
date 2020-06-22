@@ -7,8 +7,10 @@ ARG NG_VERSION=1.1.4
 ARG RPC_LISTEN_PORT=6800
 # 6801 AriaNg http server
 ARG HTTP_LISTEN_PORT=6801
-# 6881-6999 dht-listen-port/udp listen-port/tcp
-ARG BT_LISTEN_PORT=6881-6999
+# 6881-6900 dht-listen-port/udp listen-port/tcp
+ARG BT_LISTEN_PORT=6881-6900
+
+WORKDIR /aria2
 
 RUN set -x \
     && sed -i 's/http:\/\/dl-cdn.alpinelinux.org/https:\/\/mirrors.ustc.edu.cn/g' /etc/apk/repositories \
@@ -21,17 +23,18 @@ RUN set -x \
     \
     && rm -rf /tmp/* /var/cache/apk/*
 
-WORKDIR /aria2
 COPY entrypoint.sh ./
-COPY aria2.conf data/
+COPY aria2.conf ./
 
 RUN chmod +x entrypoint.sh && \
-    sed -i "s/^rpc-listen-port.*$/rpc-listen-port=$RPC_LISTEN_PORT/g" /aria2/data/aria2.conf && \
-    sed -i "s/^listen-port.*$/listen-port=$BT_LISTEN_PORT/g" /aria2/data/aria2.conf && \
-    sed -i "s/^dht-listen-port.*$/dht-listen-port=$BT_LISTEN_PORT/g" /aria2/data/aria2.conf
+    sed -i "s/^rpc-listen-port.*$/rpc-listen-port=$RPC_LISTEN_PORT/g" /aria2/aria2.conf && \
+    sed -i "s/^listen-port.*$/listen-port=$BT_LISTEN_PORT/g" /aria2/aria2.conf && \
+    sed -i "s/^dht-listen-port.*$/dht-listen-port=$BT_LISTEN_PORT/g" /aria2/aria2.conf && \
+    sed -i "s/%HTTP_LISTEN_PORT%/$HTTP_LISTEN_PORT/g" /aria2/entrypoint.sh && \
+    sed -i "s/^UPNP_PORTS.*$/UPNP_PORTS=$BT_LISTEN_PORT/g" /aria2/entrypoint.sh
 
 VOLUME [ "downloads/" ]
-VOLUME [ "data/" ]
+VOLUME [ "config/" ]
 
 EXPOSE $RPC_LISTEN_PORT/tcp $HTTP_LISTEN_PORT/tcp $BT_LISTEN_PORT
 
