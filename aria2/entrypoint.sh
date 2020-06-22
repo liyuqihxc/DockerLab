@@ -1,15 +1,67 @@
 #!/bin/env sh
 
+show_help() {
+  echo ""
+  echo "Usage:"
+  echo "  docker run [docker_opts] liyuqihxc/aria2[:tag] [options]"
+  echo ""
+  echo "Options:"
+  echo "  -s, --rpc-secret       RPC授权令牌"
+  echo "  -u, --enable-upnp      启用Upnp端口映射"
+  echo "  -h, --help             显示帮助信息并退出"
+  echo ""
+  echo "Example:"
+  echo "    docker run [docker_opts] liyuqihxc/aria2[:tag] -s <super secret token>"
+  echo "    docker run [docker_opts] --network host liyuqihxc/aria2[:tag] -s <super secret token> -u 6881-6999"
+  echo ""
+  exit 0
+}
+
+RPC_SECRET=""
+UPNP_PORTS=""
+
+ARGS=`getopt -a -o s:u:h -l rpc-secret:,enable-upnp:,help -- "$@"`
+[ $? -ne 0 ] && show_help
+eval set -- "${ARGS}"
+while true
+do
+  case "$1" in
+    -s|--rpc-secret)
+      RPC_SECRET="$2"
+      shift
+      ;;
+    -u|--enable-upnp)
+      UPNP_PORTS="$2"
+      shift
+      ;;
+    -h|--help)
+      show_help
+      ;;
+    --)
+      shift
+      break
+      ;;
+    esac
+
+  shift
+done
+
+if [ -n "$RPC_SECRET" ];then
+  sed -i "s/^rpc-secret.*$/rpc-secret=$RPC_SECRET/g" /aria2/data/aria2.conf
+else
+  sed -i "s/^rpc-secret.*$/#rpc-secret=/g" /aria2/data/aria2.conf
+fi
+
 touch /aria2/data/aria2.session
-darkhttpd /aria2/AriaNg --port 6801 &
+darkhttpd /aria2/AriaNg --port $HTTP_LISTEN_PORT &
 
 PID_HTTPD=$!
 PID_ARIA2=""
 
 while true; do
   echo "Updating trackers list...."
-  list=`wget -qO- https://raw.githubusercontent.com/ngosang/trackerslist/master/trackers_best.txt|awk NF|sed ":a;N;s/\n/,/g;ta"`
-  sed -i "s@bt-tracker.*@bt-tracker=$list@g" /aria2/data/aria2.conf
+  list=`wget -qO- https://raw.githubusercontent.com/ngosang/trackerslist/master/trackers_best.txt | awk NF | sed ":a;N;s/\n/,/g;ta"`
+  sed -i "s/^bt-tracker.*$/bt-tracker=$list/g" /aria2/data/aria2.conf
   if [ -n "$list" ];then
     [ -n "$PID_ARIA2" ] && kill "$PID_ARIA2"
     aria2c --conf-path=/aria2/data/aria2.conf --stop-with-process="$PID_HTTPD" &
