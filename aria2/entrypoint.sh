@@ -29,7 +29,7 @@ show_help() {
   exit 0
 }
 
-ARGS=`getopt -a -o s:a:b:r:d:h -l rpc-secret:,address:,bt-port:,rpc-port:,http-port:help -- "$@"`
+ARGS=`getopt -a -o s:a:b:r:d:h -l rpc-secret:,address:,bt-port:,rpc-port:,http-port:,help -- "$@"`
 [ $? -ne 0 ] && show_help
 eval set -- "${ARGS}"
 while true
