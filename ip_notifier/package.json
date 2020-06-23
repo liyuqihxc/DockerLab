@@ -1,0 +1,10 @@
+{
+  "name": "ip_notifier",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "node-getopt": "^0.3.2",
+    "nodemailer": "^6.4.10"
+  }
+}
