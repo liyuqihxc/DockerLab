@@ -27,11 +27,9 @@ COPY entrypoint.sh ./
 COPY aria2.conf ./
 
 RUN chmod +x entrypoint.sh && \
-    sed -i "s/^rpc-listen-port.*$/rpc-listen-port=$RPC_LISTEN_PORT/g" /aria2/aria2.conf && \
-    sed -i "s/^listen-port.*$/listen-port=$BT_LISTEN_PORT/g" /aria2/aria2.conf && \
-    sed -i "s/^dht-listen-port.*$/dht-listen-port=$BT_LISTEN_PORT/g" /aria2/aria2.conf && \
-    sed -i "s/%HTTP_LISTEN_PORT%/$HTTP_LISTEN_PORT/g" /aria2/entrypoint.sh && \
-    sed -i "s/^UPNP_PORTS.*$/UPNP_PORTS=$BT_LISTEN_PORT/g" /aria2/entrypoint.sh
+    sed -i "s@%HTTP_LISTEN_PORT%@$HTTP_LISTEN_PORT@g" /aria2/entrypoint.sh && \
+    sed -i "s@%RPC_LISTEN_PORT%@$RPC_LISTEN_PORT@g" /aria2/entrypoint.sh && \
+    sed -i "s@%UPNP_PORTS%@$BT_LISTEN_PORT@g" /aria2/entrypoint.sh
 
 VOLUME [ "downloads/" ]
 VOLUME [ "config/" ]
