@@ -3,8 +3,16 @@
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
+  "scripts": {
+    "debug-server": "node index.js -s",
+    "debug-client": "node --inspect-brk index.js -c --client-mail-to=liyuqihxc@gmail.com --client-name=\"hxc-nas\" --client-access-token=\"2911a65c-0224-4a32-ba5c-a2f297fce604\""
+  },
   "dependencies": {
+    "body-parser": "^1.19.0",
+    "consola": "^2.13.0",
+    "express": "^4.17.1",
     "node-getopt": "^0.3.2",
-    "nodemailer": "^6.4.10"
+    "nodemailer": "^6.4.10",
+    "request": "^2.88.2"
   }
 }
