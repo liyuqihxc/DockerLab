@@ -91,26 +91,28 @@ fi
 
 touch /aria2/config/aria2.session
 darkhttpd /aria2/AriaNg --port $HTTP_LISTEN_PORT &
+PID_HTTPD=$!
 [ -e "/aria2/config/aria2.conf" ] && cp /aria2/aria2.conf /aria2/config/aria2.conf
 
-PID_HTTPD=$!
-PID_ARIA2=""
+aria2c --conf-path=/aria2/config/aria2.conf --stop-with-process="$PID_HTTPD" &
+PID_ARIA2=$!
 
 while true; do
   echo "Updating trackers list...."
   list=`wget -qO- https://raw.githubusercontent.com/ngosang/trackerslist/master/trackers_best.txt | awk NF | sed ":a;N;s/\n/,/g;ta"`
-  sed -i "s/^bt-tracker.*$/bt-tracker=$list/g" /aria2/config/aria2.conf
-  if [ -n "$list" ];then
+  black_list=`wget -qO- https://raw.githubusercontent.com/ngosang/trackerslist/master/blacklist.txt | awk NF | sed ":a;N;s/\s#.\+\n/,/g;ta"`
+  if [[ -n "$list" || -n "$black_list" ]];then
     echo "New trackers list: "
     echo "$list"
     echo ""
+    echo "New trackers blacklist: "
+    echo "$black_list"
+    echo ""
+    wget -O /dev/null --header="Content-Type: application/json" --post-data="{\"id\":\"$RANDOM\",\"jsonrpc\":\"2.0\",\"method\":\"aria2.changeGlobalOption\",\"params\":[\"token:$RPC_SECRET\",{\"bt-tracker\":\"$list\",\"bt-exclude-tracker\":\"$black_list\"}]}" http://$UPNP_ADDRESS:$RPC_LISTEN_PORT/jsonrpc
+    echo "Trackers list updated."
   else
     echo "Failed to update trackers list."
   fi
-  [ -n "$PID_ARIA2" ] && kill "$PID_ARIA2"
-  PID_ARIA2=""
-  aria2c --conf-path=/aria2/config/aria2.conf --stop-with-process="$PID_HTTPD" &
-  PID_ARIA2=$!
-  echo "aria2c is running...."
+
   sleep 12h
 done
